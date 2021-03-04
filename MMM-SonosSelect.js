@@ -9,7 +9,7 @@
  * MIT Licensed.
  */
 
-const request = require('request');
+//const request = require('request');
 
 Module.register("MMM-SonosSelect",{
 	
@@ -51,7 +51,7 @@ Module.register("MMM-SonosSelect",{
 
     // Define required styles.
 	getStyles: function(){
-		return ["font-awesome.css", "MMM-Modulebar.css"];
+		return ["font-awesome.css", "MMM-SonosSelect.css"];
 	},
 
     // Override dom generator.
@@ -82,7 +82,8 @@ Module.register("MMM-SonosSelect",{
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
 			// Request the current state of the sonos system.
-			request.get(this.config.server_ip + this.config.buttons[num].room + '/playpause');
+			//request.get(this.config.server_ip + this.config.buttons[num].room + '/playpause');
+            
 		});
 		// Fixes the aligning.
         item.style.flexDirection = {
