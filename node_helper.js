@@ -28,6 +28,6 @@ module.exports = NodeHelper.create({
             this.getSonosStatus(payload);
         } else if (notification == "SONOS_GROUP_UNGROUP") {
             this.groupUngroupRequest(payload);
-        } else if (notification == "")
+        }
     }
 });
