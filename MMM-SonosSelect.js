@@ -82,8 +82,9 @@ Module.register("MMM-SonosSelect",{
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
 			// Request the current state of the sonos system.
-			//request.get(this.config.server_ip + this.config.buttons[num].room + '/playpause');
-            
+			//request.get();
+            var url = this.config.server_ip + this.config.buttons[num].room + '/playpause';
+            self.sendSocketNotification('GET_SONOS', url);
 		});
 		// Fixes the aligning.
         item.style.flexDirection = {
