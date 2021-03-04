@@ -31,7 +31,7 @@ Module.register("MMM-SonosSelect",{
 		// The speed of the hide and show animation.
 		animationSpeed: 1000,
 		// IP address of server hosting sonos api
-		server_ip: "http://localhost:5005",
+		serverIP: "http://localhost:5005",
         // The default button 1. Add your buttons in the config.
 		buttons: {
             "1": {
@@ -83,8 +83,8 @@ Module.register("MMM-SonosSelect",{
 		item.addEventListener("click", function () {
 			// Request the current state of the sonos system.
 			//request.get();
-            var url = this.config.server_ip + this.config.buttons[num].room + '/playpause';
-            self.sendSocketNotification('GET_SONOS', url);
+            var url = self.config.serverIP + "/" + self.config.buttons[num].room + "/playpause";
+            self.sendSocketNotification("GET_SONOS", url);
 		});
 		// Fixes the aligning.
         item.style.flexDirection = {
