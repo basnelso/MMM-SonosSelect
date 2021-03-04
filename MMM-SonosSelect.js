@@ -128,6 +128,7 @@ Module.register("MMM-SonosSelect",{
 
     processData: function(data) {
         console.log("processing data from sonos");
+        console.log(data);
     },
 
     socketNotificationReceived: function(notification, payload) {
