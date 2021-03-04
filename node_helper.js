@@ -13,7 +13,7 @@ module.exports = NodeHelper.create({
                 console.log("MMM-SonosSelect: GET request failed.")
             } else {
                 var data = JSON.parse(body);
-                self.sendSocketNotification('SONOS_DATA', data);
+                this.sendSocketNotification('SONOS_DATA', data);
             }
 
         });    
