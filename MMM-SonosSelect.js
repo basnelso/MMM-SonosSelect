@@ -21,9 +21,9 @@ Module.register("MMM-SonosSelect",{
         // Determines if the border around the buttons should be shown.
         showBorder: true,
         // The minimum width for all the buttons.
-        minWidth: "0px",
+        minWidth: "50px",
         // The minimum height for all the buttons.
-        minHeight: "0px",
+        minHeight: "50px",
         // The location of the symbol relative to the text. Options: left, right, top or bottom
         picturePlacement: "left",
         // The direction of the bar. Options: row, column, row-reverse or column-reverse
