@@ -16,23 +16,14 @@ Module.register("MMM-SonosSelect",{
 	requiresVersion: "2.1.0",
 	
     defaults: {
-        // Allow the module to force modules to be shown (if hidden and locked by another module ex. profile-switcher).
-        allowForce: false,
         // Determines if the border around the buttons should be shown.
         showBorder: true,
-        // The minimum width for all the buttons.
         minWidth: "50px",
-        // The minimum height for all the buttons.
         minHeight: "50px",
-        // The location of the symbol relative to the text. Options: left, right, top or bottom
-        picturePlacement: "left",
         // The direction of the bar. Options: row, column, row-reverse or column-reverse
         direction: "row",
-		// The speed of the hide and show animation.
-		animationSpeed: 1000,
-		// IP address of server hosting sonos api
 		serverIP: "http://localhost:5005",
-        // The default button 1. Add your buttons in the config.
+        updateInterval: 10 * 1000, // 10 seconds
 		buttons: {
             "1": {
 				room: "Living Room",
@@ -54,6 +45,24 @@ Module.register("MMM-SonosSelect",{
 		return ["font-awesome.css", "MMM-SonosSelect.css"];
 	},
 
+    start: function() {
+        Log.info('Starting module: ' + this.name + ', version ' + this.config.version);
+
+        this.errMsg = '';
+
+        this.scheduleUpdate(500);
+        
+        /*
+        this.groups = {};
+        for (var num in this.config.buttons) {
+            var room_name = this.config.buttons[num].room
+            this.groups[room_name] = {
+                
+            }
+        }
+        */
+    },
+
     // Override dom generator.
     getDom: function() {
         var menu = document.createElement("span");
@@ -62,14 +71,14 @@ Module.register("MMM-SonosSelect",{
         menu.style.flexDirection = this.config.direction;
 		// Sends each button to the "createButton" function be created.
 		for (var num in this.config.buttons) {
-			menu.appendChild(this.createButton(this, num, this.config.buttons[num], this.config.picturePlacement));
+			menu.appendChild(this.createButton(this, num, this.config.buttons[num]));
         }
 
         return menu;
     },
 
 	// Creates the buttons.
-    createButton: function (self, num, data, placement) {
+    createButton: function (self, num, data) {
 		// Creates the span element to contain all the buttons.
 		var item = document.createElement("span");
         // Builds a unique identity / button.
@@ -81,8 +90,6 @@ Module.register("MMM-SonosSelect",{
         item.style.minHeight = self.config.minHeight;
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
-			// Request the current state of the sonos system.
-			//request.get();
             var url = self.config.serverIP + "/" + self.config.buttons[num].room + "/playpause";
             self.sendSocketNotification("GET_SONOS", url);
 		});
@@ -92,7 +99,7 @@ Module.register("MMM-SonosSelect",{
             "left"   : "row",
             "top"    : "column",
             "bottom" : "column-reverse"
-        }[placement];
+        }["left"];
 		// Sets the border around the symbol/picture/text to black.
         if (!self.config.showBorder) {
             item.style.borderColor = "black";
@@ -106,42 +113,37 @@ Module.register("MMM-SonosSelect",{
                 symbol.className += " fa-" + data.size;
                 symbol.className += data.size == 1 ? "g" : "x";
             }
-			// Align the symbol with a margin.
-            if (data.text && placement === "left") {
-                symbol.style.marginRight = "4px";
-            }
 			// Adds the symbol to the item.
             item.appendChild(symbol);
-
-		// Adds a picture if specified.
-		} else if (data.img) {
-            var image = document.createElement("img");
-            image.className = "modulebar-picture";
-            image.src = data.img;
-			// Sets the size of the picture if specified.
-            if (data.width)  image.width  = data.width;
-            if (data.height) image.height = data.height;
-			// Align the picture with a margin.
-            if (data.text && placement === "left") {
-                image.style.marginRight = "4px";
-            }
-			// Adds the picture to the item.
-            item.appendChild(image);
-        }
-		// Adds the text if specified.
-        if (data.text) {
-            var text = document.createElement("span");
-            text.className = "modulebar-text";
-            text.innerHTML = data.text;
-			// Align the text with a margin.
-            if ((data.symbol || data.img) && placement === "right") {
-                text.style.marginRight = "4px";
-            }
-			// Adds the text to the item.
-            item.appendChild(text);
         }
 		// All done. :)
         return item;
+    },
+
+    getData: function() {
+        var self = this;
+        var url = self.config.serverIP + "/zones";
+        this.sendSocketNotification('SONOS_GET_DATA', url);
+    },
+
+    processData: function(data) {
+        console.log("processing data from sonos");
+    },
+
+    socketNotificationReceived: function(notification, payload) {
+        var self = this;
+        if (notification === "SONOS_DATA") {
+            self.processData(payload);
+        }
+    },
+
+    scheduleUpdate: function() {
+        var nextLoad = this.config.updateInterval;
+
+        var self = this;
+        setTimeout(function() {
+            self.getData();
+        }, nextLoad);
     }
 });	
 

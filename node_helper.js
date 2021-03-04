@@ -7,13 +7,27 @@ module.exports = NodeHelper.create({
         console.log('Starting node_helper for module [' + this.name + ']');
     },
 
-    sendGetRequest(url) {
+    getSonosStatus(url) {
+        request(url, {method: 'GET'}, function(err, res, body) {
+            if ((err) || (res.statusCode !== 200)) {
+                console.log("MMM-SonosSelect: GET request failed.")
+            } else {
+                var data = JSON.parse(body);
+                self.sendSocketNotification('SONOS_DATA', data);
+            }
+
+        });    
+    },
+
+    groupUngroupRequest(url) {
         request.get(url);
     },
 
     socketNotificationReceived: function(notification, payload) {
-        if (notification === "GET_SONOS") {
-            this.sendGetRequest(payload);
-        }
+        if (notification === "SONOS_GET_DATA") {
+            this.getSonosStatus(payload);
+        } else if (notification == "SONOS_GROUP_UNGROUP") {
+            this.groupUngroupRequest(payload);
+        } else if (notification == "")
     }
 });
