@@ -9,9 +9,9 @@
  * MIT Licensed.
  */
 
-//var request = require('request');
+const request = require('request');
 
-Module.register("MMM-Modulebar",{
+Module.register("MMM-Sonos-Selector",{
 	
 	requiresVersion: "2.1.0",
 	
@@ -30,16 +30,22 @@ Module.register("MMM-Modulebar",{
         direction: "row",
 		// The speed of the hide and show animation.
 		animationSpeed: 1000,
+		// IP address of server hosting sonos api
+		server_ip: 'http://localhost:5005',
         // The default button 1. Add your buttons in the config.
 		buttons: {
             "1": {
-				// The modules exact name to be affected.
-				module: "clock",
-				// The text to be displayed in the button.
-				text:	"Clock",
-				// Then symbol from font-awesome!
-                symbol: "clock-o"
-            }
+				room: "Living Room",
+                symbol: "couch"
+            },
+			"2": {
+				room: "Kitchen",
+                symbol: "utensils"
+            },
+			"3": {
+				room: "Bathroom",
+                symbol: "toilet"
+            },
 		}
     },
 
@@ -73,59 +79,10 @@ Module.register("MMM-Modulebar",{
         // Makes sure the width and height is at least the defined minimum.
 		item.style.minWidth = self.config.minWidth;
         item.style.minHeight = self.config.minHeight;
-		// Collects all modules loaded in MagicMirror.
-		var modules = MM.getModules();
-		// When a button is clicked, the module either gets hidden or shown depending on current module status.
+		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
-			// Lists through all modules for testing.
-			for (var i = 0; i < modules.length; i++) {
-				// Check if the current module is the one.
-				if (modules[i].name === data.module) {
-					// Splits out the module number of the module with the same name.
-					var idnr = modules[i].data.identifier.split("_");
-					// Check if the idnum is an array or not
-					if (Array.isArray(data.idnum)) {
-						// If it's an array, check what numbers are in it.
-						var idnumber = data.idnum.find(function(element) {
-							// Number of the module is found in the array.
-							return element == idnr[1]; 
-						});
-					// If idnum is not an array.
-					} else {
-						// Set the module id to hide.
-						var idnumber = data.idnum;
-					}
-					// Checks if idnum is set in config.js. If it is, it only hides that modules with those numbers and name, if not hides all modules with the same name.
-					if (idnr[1] == idnumber || data.idnum == null) {
-						// Check if the module is hidden.
-						if (modules[i].hidden) {
-							// Check if there is a "showURL" defined.
-							if (data.showUrl != null) {
-								// Visiting the show URL.
-								fetch(data.showUrl);
-								// Prints the visited hideURL.
-								console.log("Visiting show URL: "+data.showUrl);
-							}
-							// Shows the module.
-							modules[i].show(self.config.animationSpeed, {force: self.config.allowForce});
-							// Prints in the console what just happened (adding the ID). 
-							console.log("Showing "+modules[i].name+" ID: "+idnr[1]);
-						}else{
-							// Hides the module.
-							modules[i].hide(self.config.animationSpeed, {force: self.config.allowForce});
-							// Prints in the console what just happened (adding the ID). 
-							console.log("Hiding "+modules[i].name+" ID: "+idnr[1]);
-							// Check if there is a "hideURL" defined.
-							if (data.hideUrl != null) {
-								// Visiting the the URL.
-								fetch(data.hideUrl);
-								// Prints the visited hideURL.
-								console.log("Visiting hide URL: "+data.hideUrl);
-							}
-						}
-					}
-				}
-			}
+			// Request the current state of the sonos system.
+			request.get(this.config.server_ip + this.config.buttons[num] + '/playpause');
 		});
 		// Fixes the aligning.
         item.style.flexDirection = {
