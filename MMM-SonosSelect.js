@@ -81,12 +81,7 @@ Module.register("MMM-SonosSelect",{
         // Sets a class to all buttons.
 		item.className = "room-button";
         
-        // Test if button should be shaded or not
-        if (this.groups[num].playing) {
-            item.className += " room-button-on";
-        } else {
-            item.className += " room-button-off";
-        }
+
 
         // Makes sure the width and height is at least the defined minimum.
 		item.style.minWidth = self.config.minWidth;
@@ -115,6 +110,16 @@ Module.register("MMM-SonosSelect",{
                 symbol.className += " fa-" + data.size;
                 symbol.className += data.size == 1 ? "g" : "x";
             }
+
+                    // Test if button should be shaded or not
+            if (this.groups[num].playing) {
+                item.className += " room-button-on";
+                symbol.className += " room-symbol-on";
+            } else {
+                item.className += " room-button-off";
+                symbol.className += " room-symbol-off";
+            }
+
 			// Adds the symbol to the item.
             item.appendChild(symbol);
         }
