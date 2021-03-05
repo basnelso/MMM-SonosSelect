@@ -22,8 +22,6 @@ module.exports = NodeHelper.create({
     },
 
     sendGet(url) {
-        console.log("sending get request:")
-        console.log(url);
         request.get(url);
     },
 

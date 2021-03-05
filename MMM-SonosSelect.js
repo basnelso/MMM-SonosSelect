@@ -106,7 +106,8 @@ Module.register("MMM-SonosSelect",{
                 }
                 self.rooms[num].playing = true;
             }
-            
+            console.log("sending get request:")
+            console.log(url);
             self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
             self.updateDom();
             self.getData();
