@@ -97,6 +97,7 @@ Module.register("MMM-SonosSelect",{
 		item.className = "button";
 		item.style.minWidth = self.config.minWidth;
         item.style.minHeight = self.config.minHeight;
+        item.style.borderColor = "black";
 
         var playing = (self.coordinator != null);
 
@@ -104,8 +105,10 @@ Module.register("MMM-SonosSelect",{
             var url = self.config.serverIP;
             if (playing) { // Music playing
                 url += "/" + self.config.buttons[self.coordinator].room + "/pause";
+                self.coordinator = null;
             } else if (!playing && self.lastPlayed != null) { // Music paused on lastplayed
                 url += "/" + self.config.buttons[self.lastPlayed].room + "/play";
+                self.coordinator = lastPlayed;
             }
             self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
             self.updateDom();
@@ -138,6 +141,7 @@ Module.register("MMM-SonosSelect",{
 		item.className = "button";
 		item.style.minWidth = self.config.minWidth;
         item.style.minHeight = self.config.minHeight;
+        item.style.borderColor = "black";
 
         item.addEventListener("click", function () {
             var url = self.config.serverIP;
@@ -165,6 +169,7 @@ Module.register("MMM-SonosSelect",{
 		item.className = "button";
 		item.style.minWidth = self.config.minWidth;
         item.style.minHeight = self.config.minHeight;
+        item.style.borderColor = "black";
 
         item.addEventListener("click", function () {
             var url = self.config.serverIP;
