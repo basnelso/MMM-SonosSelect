@@ -80,15 +80,13 @@ Module.register("MMM-SonosSelect",{
 		item.id = self.identifier + "_button_" + num;
         // Sets a class to all buttons.
 		item.className = "room-button";
-        
 
-
+        var self = this;
         // Makes sure the width and height is at least the defined minimum.
 		item.style.minWidth = self.config.minWidth;
         item.style.minHeight = self.config.minHeight;
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
-            var self = this;
             console.log('button pressed: ' + num);
             var url = self.config.serverIP;
             //self.sendSocketNotification("GET_SONOS", url);
