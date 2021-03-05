@@ -100,7 +100,7 @@ Module.register("MMM-SonosSelect",{
                 self.rooms[num].playing = false;
             } else {
                 if (self.coordinator != null) { // There is a room playing music
-                    url += "/" + self.config.buttons[this.coordinator].room + "/add/" + self.config.buttons[num].room;
+                    url += "/" + self.config.buttons[self.coordinator].room + "/add/" + self.config.buttons[num].room;
                 } else { // No room is playing music
                     url += "/" + self.config.buttons[num].room + "/play"
                 }
