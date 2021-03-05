@@ -176,7 +176,7 @@ Module.register("MMM-SonosSelect",{
         console.log('processed data: ')
         console.log(data)
         console.log(this.rooms)
-        self.updateDom();
+        this.updateDom();
     },
 
     setCoordinator: function() {
