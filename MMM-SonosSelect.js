@@ -92,17 +92,18 @@ Module.register("MMM-SonosSelect",{
             var url = self.config.serverIP;
             playing = self.rooms[num].playing
             if (playing) {
-                if (self.coordinator != null) { // There is a room playing music
+                self.rooms[num].playing = false;
+                self.setCoordinator();
+                if (self.coordinator != null) { // There is still a room playing music
                     url += "/" + self.config.buttons[num].room + "/leave"
                 } else {
-                    url += "/" + self.config.buttons[num].room + "/playpause"
+                    url += "/" + self.config.buttons[num].room + "/pause"
                 }
-                self.rooms[num].playing = false;
             } else {
                 if (self.coordinator != null) { // There is a room playing music
                     url += "/" + self.config.buttons[self.coordinator].room + "/add/" + self.config.buttons[num].room;
                 } else { // No room is playing music
-                    url += "/" + self.config.buttons[num].room + "/playpause"
+                    url += "/" + self.config.buttons[num].room + "/play"
                 }
                 self.rooms[num].playing = true;
             }
