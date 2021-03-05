@@ -139,7 +139,7 @@ Module.register("MMM-SonosSelect",{
             this.rooms[num].playing = true;
         }
 
-        this.getDom();
+        this.updateDom();
     },
 
     getData: function() {
