@@ -49,15 +49,13 @@ Module.register("MMM-SonosSelect",{
         Log.info('Starting module: ' + this.name + ', version ' + this.config.version);
 
         this.scheduleUpdates();
-        /*
         this.groups = {};
         for (var num in this.config.buttons) {
-            var room_name = this.config.buttons[num].room
-            this.groups[room_name] = {
-                
+            //var room_name = this.config.buttons[num].room
+            this.groups[num] = {
+                "playing": false
             }
         }
-        */
     },
 
     // Override dom generator.
@@ -81,14 +79,21 @@ Module.register("MMM-SonosSelect",{
         // Builds a unique identity / button.
 		item.id = self.identifier + "_button_" + num;
         // Sets a class to all buttons.
-		item.className = "modulebar-button";
+		item.className = "room-button";
+        
+        // Test if button should be shaded or not
+        if (this.groups[num].playing) {
+            item.className += " room-button-on";
+        } else {
+            item.className += " room-button-off";
+        }
+
         // Makes sure the width and height is at least the defined minimum.
 		item.style.minWidth = self.config.minWidth;
         item.style.minHeight = self.config.minHeight;
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
-            var url = self.config.serverIP + "/" + self.config.buttons[num].room + "/playpause";
-            self.sendSocketNotification("GET_SONOS", url);
+            this.buttonPressed(num);
 		});
 		// Fixes the aligning.
         item.style.flexDirection = {
@@ -116,6 +121,12 @@ Module.register("MMM-SonosSelect",{
 		// All done. :)
         return item;
     },
+
+    buttonPressed: function(num) {
+        console.log('button pressed: ' + num);
+        var url = self.config.serverIP + "/" + self.config.buttons[num].room + "/playpause";
+        //self.sendSocketNotification("GET_SONOS", url);
+    }
 
     getData: function() {
         var self = this;
