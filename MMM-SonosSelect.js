@@ -72,9 +72,9 @@ Module.register("MMM-SonosSelect",{
         }
         container.appendChild(menu);
 
-        if (false) {
+        if (true) {
             var control = document.createElement("span");
-            control.appendChild(this.createRoomButton(this, num, this.config.buttons[num]));
+            control.appendChild(this.createRoomButton(this, 1, this.config.buttons[1]));
             container.appendChild(control);
         }
 
