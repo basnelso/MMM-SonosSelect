@@ -88,18 +88,18 @@ Module.register("MMM-SonosSelect",{
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
             console.log('button pressed: ' + num);
-            console.log(this.rooms)
+            console.log(self.rooms)
             var url = self.config.serverIP;
             playing = self.rooms[num].playing
             if (playing) {
-                if (this.coordinator != null) { // There is a room playing music
+                if (self.coordinator != null) { // There is a room playing music
                     url += "/" + self.config.buttons[num].room + "/leave"
                 } else {
                     url += "/" + self.config.buttons[num].room + "/pause"
                 }
                 self.rooms[num].playing = false;
             } else {
-                if (this.coordinator != null) { // There is a room playing music
+                if (self.coordinator != null) { // There is a room playing music
                     url += "/" + self.config.buttons[this.coordinator].room + "/add/" + self.config.buttons[num].room;
                 } else { // No room is playing music
                     url += "/" + self.config.buttons[num].room + "/play"
