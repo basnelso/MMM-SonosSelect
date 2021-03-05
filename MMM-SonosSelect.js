@@ -108,6 +108,7 @@ Module.register("MMM-SonosSelect",{
             
             self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
             self.updateDom();
+            self.getData();
 		});
 		// Fixes the aligning.
         item.style.flexDirection = {
