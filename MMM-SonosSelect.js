@@ -61,7 +61,7 @@ Module.register("MMM-SonosSelect",{
     // Override dom generator.
     getDom: function() {
         var menu = document.createElement("span");
-        menu.className = "modulebar-menu";
+        menu.className = "icon-menu";
         menu.id = this.identifier + "_menu";
         menu.style.flexDirection = this.config.direction;
 		// Sends each button to the "createButton" function be created.

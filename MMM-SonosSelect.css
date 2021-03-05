@@ -7,9 +7,10 @@
  * MIT Licensed.                                     *
  *                                                   *
  *****************************************************/
-.modulebar-menu {
+.icon-menu {
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    text-align: center;
 }
 
 .room-button {
