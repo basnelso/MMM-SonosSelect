@@ -50,8 +50,9 @@ Module.register("MMM-SonosSelect",{
 
         this.errMsg = '';
 
-        this.scheduleUpdate(500);
-        
+        this.scheduleUpdates();
+        self.getData();
+
         /*
         this.groups = {};
         for (var num in this.config.buttons) {
@@ -135,17 +136,15 @@ Module.register("MMM-SonosSelect",{
         var self = this;
         if (notification === "SONOS_DATA") {
             self.processData(payload);
-            self.scheduleUpdate(self.config.updateInterval);
         } else if (notification === "SONOS_DATA_ERR") {
-            self.scheduleUpdate(self.config.updateInterval);
         }
     },
 
-    scheduleUpdate: function() {
+    scheduleUpdates: function() {
         var nextLoad = this.config.updateInterval;
 
         var self = this;
-        setTimeout(function() {
+        setInterval(function() {
             self.getData();
         }, nextLoad);
     }
