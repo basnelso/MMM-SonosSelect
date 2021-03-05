@@ -49,10 +49,10 @@ Module.register("MMM-SonosSelect",{
         Log.info('Starting module: ' + this.name + ', version ' + this.config.version);
 
         this.scheduleUpdates();
-        this.groups = {};
+        this.rooms = {};
         for (var num in this.config.buttons) {
             //var room_name = this.config.buttons[num].room
-            this.groups[num] = {
+            this.rooms[num] = {
                 "playing": true
             }
         }
@@ -112,7 +112,7 @@ Module.register("MMM-SonosSelect",{
             }
 
                     // Test if button should be shaded or not
-            if (this.groups[num].playing) {
+            if (this.rooms[num].playing) {
                 item.className += " room-button-on";
                 symbol.className += " room-symbol-on";
             } else {
@@ -129,8 +129,17 @@ Module.register("MMM-SonosSelect",{
 
     buttonPressed: function(num) {
         console.log('button pressed: ' + num);
-        var url = self.config.serverIP + "/" + self.config.buttons[num].room + "/playpause";
+        var url = self.config.serverIP;
         //self.sendSocketNotification("GET_SONOS", url);
+        playing = this.rooms[num].playing
+        if (playing) {
+            url += "/" + self.config.buttons[num].room + "/leave"
+            this.rooms[num].playing = false;
+        } else {
+            this.rooms[num].playing = true;
+        }
+
+        this.getDom();
     },
 
     getData: function() {
