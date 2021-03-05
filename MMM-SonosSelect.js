@@ -174,6 +174,7 @@ Module.register("MMM-SonosSelect",{
     },
 
     setCoordinator: function() {
+        console.log('attempting to find a coordinator');
         var coordinatorFound = false;
         for (var num in this.rooms) {
             var room = this.rooms[num];
