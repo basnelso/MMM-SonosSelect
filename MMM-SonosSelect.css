@@ -8,10 +8,9 @@
  *                                                   *
  *****************************************************/
 .modulebar-menu {
-    display: box;
-    margin-left: auto;
-    margin-right: auto;
+    display: flex;
     align-items: stretch;
+    border: 3px solid white;
 }
 
 .room-button {
