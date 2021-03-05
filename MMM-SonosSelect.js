@@ -126,7 +126,7 @@ Module.register("MMM-SonosSelect",{
         console.log('button pressed: ' + num);
         var url = self.config.serverIP + "/" + self.config.buttons[num].room + "/playpause";
         //self.sendSocketNotification("GET_SONOS", url);
-    }
+    },
 
     getData: function() {
         var self = this;
