@@ -62,6 +62,7 @@ Module.register("MMM-SonosSelect",{
     // Override dom generator.
     getDom: function() {
         var container = document.createElement("div");
+
         var menu = document.createElement("span");
         menu.className = "icon-menu";
         menu.id = this.identifier + "_menu";
@@ -75,9 +76,15 @@ Module.register("MMM-SonosSelect",{
 
         if (true) {
             var control = document.createElement("span");
+            
+            control.className = "icon-menu";
+            control.id = this.identifier + "_playpause";
+            control.style.flexDirection = this.config.direction;
+
             control.appendChild(this.createRewindButton(this));
             control.appendChild(this.createPlayPauseButton(this));
             control.appendChild(this.createSkipButton(this));
+
             container.appendChild(control);
         }
 
@@ -175,7 +182,7 @@ Module.register("MMM-SonosSelect",{
             "top"    : "column",
             "bottom" : "column-reverse"
         }["left"];
-        
+
         return item;
     },
 
