@@ -88,18 +88,19 @@ Module.register("MMM-SonosSelect",{
         item.style.minHeight = self.config.minHeight;
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
+            var self = this;
             console.log('button pressed: ' + num);
-            var url = this.config.serverIP;
+            var url = self.config.serverIP;
             //self.sendSocketNotification("GET_SONOS", url);
-            playing = this.rooms[num].playing
+            playing = self.rooms[num].playing
             if (playing) {
-                url += "/" + this.config.buttons[num].room + "/leave"
-                this.rooms[num].playing = false;
+                url += "/" + self.config.buttons[num].room + "/leave"
+                self.rooms[num].playing = false;
             } else {
-                this.rooms[num].playing = true;
+                self.rooms[num].playing = true;
             }
     
-            this.updateDom();
+            self.updateDom();
 		});
 		// Fixes the aligning.
         item.style.flexDirection = {
