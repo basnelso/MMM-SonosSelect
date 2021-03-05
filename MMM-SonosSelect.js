@@ -135,8 +135,10 @@ Module.register("MMM-SonosSelect",{
         var self = this;
         if (notification === "SONOS_DATA") {
             self.processData(payload);
+            self.scheduleUpdate(self.config.updateInterval);
+        } else if (notification === "SONOS_DATA_ERR") {
+            self.scheduleUpdate(self.config.updateInterval);
         }
-        self.scheduleUpdate(self.config.updateInterval);
     },
 
     scheduleUpdate: function() {

@@ -12,6 +12,7 @@ module.exports = NodeHelper.create({
         request(url, {method: 'GET'}, function(err, res, body) {
             if ((err) || (res.statusCode !== 200)) {
                 console.log("MMM-SonosSelect: GET request failed.")
+                self.sendSocketNotification('SONOS_DATA_ERR', data);
             } else {
                 var data = JSON.parse(body);
                 self.sendSocketNotification('SONOS_DATA', data);
