@@ -60,22 +60,29 @@ Module.register("MMM-SonosSelect",{
 
     // Override dom generator.
     getDom: function() {
-        console.log('making dom with data: ')
-        console.log(this.rooms)
+        var container = document.createElement("div");
         var menu = document.createElement("span");
         menu.className = "icon-menu";
         menu.id = this.identifier + "_menu";
         menu.style.flexDirection = this.config.direction;
-		// Sends each button to the "createButton" function be created.
+		
+        // Sends each button to the "createButton" function be created.
 		for (var num in this.config.buttons) {
-			menu.appendChild(this.createButton(this, num, this.config.buttons[num]));
+			menu.appendChild(this.createRoomButton(this, num, this.config.buttons[num]));
+        }
+        container.appendChild(menu);
+
+        if (false) {
+            var control = document.createElement("span");
+            control.appendChild(this.createRoomButton(this, num, this.config.buttons[num]));
+            container.appendChild(control);
         }
 
-        return menu;
+        return container;
     },
 
 	// Creates the buttons.
-    createButton: function (self, num, data) {
+    createRoomButton: function (self, num, data) {
 		// Creates the span element to contain all the buttons.
 		var item = document.createElement("span");
         // Builds a unique identity / button.
@@ -173,9 +180,6 @@ Module.register("MMM-SonosSelect",{
                 }
             }
         }
-        console.log('processed data: ')
-        console.log(data)
-        console.log(this.rooms)
         this.updateDom();
     },
 
