@@ -22,7 +22,7 @@ Module.register("MMM-SonosSelect",{
         // The direction of the bar. Options: row, column, row-reverse or column-reverse
         direction: "row",
 		serverIP: "http://localhost:5005",
-        updateInterval: 10 * 1000, // 10 seconds
+        updateInterval: 20 * 1000, // 20 seconds
 		buttons: {
             "1": {
 				room: "Living Room",
@@ -95,14 +95,14 @@ Module.register("MMM-SonosSelect",{
                 if (self.coordinator != null) { // There is a room playing music
                     url += "/" + self.config.buttons[num].room + "/leave"
                 } else {
-                    url += "/" + self.config.buttons[num].room + "/pause"
+                    url += "/" + self.config.buttons[num].room + "/playpause"
                 }
                 self.rooms[num].playing = false;
             } else {
                 if (self.coordinator != null) { // There is a room playing music
                     url += "/" + self.config.buttons[self.coordinator].room + "/add/" + self.config.buttons[num].room;
                 } else { // No room is playing music
-                    url += "/" + self.config.buttons[num].room + "/play"
+                    url += "/" + self.config.buttons[num].room + "/playpause"
                 }
                 self.rooms[num].playing = true;
             }
