@@ -88,7 +88,8 @@ Module.register("MMM-SonosSelect",{
         item.style.minHeight = self.config.minHeight;
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
-            this.buttonPressed(num);
+            var self = this;
+            self.buttonPressed(num);
 		});
 		// Fixes the aligning.
         item.style.flexDirection = {
