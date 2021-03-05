@@ -60,6 +60,8 @@ Module.register("MMM-SonosSelect",{
 
     // Override dom generator.
     getDom: function() {
+        console.log('making dom with data: ')
+        console.log(this.rooms)
         var menu = document.createElement("span");
         menu.className = "icon-menu";
         menu.id = this.identifier + "_menu";
@@ -162,15 +164,9 @@ Module.register("MMM-SonosSelect",{
                 for (var num in this.config.buttons) { // Look through each room specified in config
                     var buttonRoomName = this.config.buttons[num].room;
                     if (buttonRoomName == member.roomName) { // Find the button that matches this member
-                        console.log('playback state:')
-                        console.log(member.state.playbackState)
-                        console.log('from')
-                        console.log(member)
                         if (member.state.playbackState == "PLAYING") {
-                            console.log(this.config.buttons[num].room + ' is playing')
                             this.rooms[num].playing = true;
                         } else {
-                            console.log(this.config.buttons[num].room + ' is stopped')
                             this.rooms[num].playing = false;
                         }
                     }
