@@ -87,8 +87,6 @@ Module.register("MMM-SonosSelect",{
         item.style.minHeight = self.config.minHeight;
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
-            console.log('button pressed: ' + num);
-            console.log(self.rooms)
             var url = self.config.serverIP;
             playing = self.rooms[num].playing
             if (playing) {
@@ -106,7 +104,8 @@ Module.register("MMM-SonosSelect",{
                 }
                 self.rooms[num].playing = true;
             }
-            console.log("sending get request:")
+            console.log('button pressed: ' + num);
+            console.log(self.rooms)
             console.log(url);
             self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
             self.updateDom();
@@ -155,8 +154,6 @@ Module.register("MMM-SonosSelect",{
     },
 
     processData: function(data) {
-        console.log("processing data from sonos");
-        console.log(data);
         for (var group in data) {
             for (var member in group.members) {
                 for (var num in this.config.buttons) { // Look through each room specified in config
@@ -171,10 +168,11 @@ Module.register("MMM-SonosSelect",{
                 }
             }
         }
+        console.log('processed data: ')
+        console.log(this.rooms)
     },
 
     setCoordinator: function() {
-        console.log('attempting to find a coordinator');
         var coordinatorFound = false;
         for (var num in this.rooms) {
             var room = this.rooms[num];
@@ -199,7 +197,6 @@ Module.register("MMM-SonosSelect",{
 
     scheduleUpdates: function() {
         var nextLoad = this.config.updateInterval;
-        console.log('scheduleupdates called')
         var self = this;
         setInterval(function() {
             self.getData();
