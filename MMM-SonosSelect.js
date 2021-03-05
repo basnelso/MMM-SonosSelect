@@ -109,7 +109,7 @@ Module.register("MMM-SonosSelect",{
                 self.coordinator = null;
             } else if (!playing && self.lastPlayed != null) { // Music paused on lastplayed
                 url += "/" + self.config.buttons[self.lastPlayed].room + "/play";
-                self.coordinator = lastPlayed;
+                self.coordinator = self.lastPlayed;
             }
             self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
             self.updateDom();
