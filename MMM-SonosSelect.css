@@ -9,8 +9,7 @@
  *****************************************************/
 .modulebar-menu {
     display: flex;
-    align-items: stretch;
-    border: 3px solid white;
+    align-items: center;
 }
 
 .room-button {
