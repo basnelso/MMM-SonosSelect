@@ -21,15 +21,15 @@ module.exports = NodeHelper.create({
         });    
     },
 
-    groupUngroupRequest(url) {
+    sendGet(url) {
         request.get(url);
     },
 
     socketNotificationReceived: function(notification, payload) {
         if (notification === "SONOS_GET_DATA") {
             this.getSonosStatus(payload);
-        } else if (notification == "SONOS_GROUP_UNGROUP") {
-            this.groupUngroupRequest(payload);
+        } else if (notification == "SONOS_BUTTON_CLICK") {
+            this.sendGet(payload);
         }
     }
 });

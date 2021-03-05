@@ -1,15 +1,14 @@
 /* global Module */
 
 /* Magic Mirror 2
- * Module: MMM-Modulebar
+ * Module: MMM-SonosSelect
  *
- * By Erik Pettersson
- * Based on the TouchNavigation Module by Brian Janssen
+ * By Brady Snelson
+ * 
+ * Using code from MMM-Modulebar by Erik Pettersson
  *
  * MIT Licensed.
  */
-
-//const request = require('request');
 
 Module.register("MMM-SonosSelect",{
 	
@@ -49,9 +48,10 @@ Module.register("MMM-SonosSelect",{
         Log.info('Starting module: ' + this.name + ', version ' + this.config.version);
 
         this.scheduleUpdates();
+
+        this.coordinator = null;
         this.rooms = {};
         for (var num in this.config.buttons) {
-            //var room_name = this.config.buttons[num].room
             this.rooms[num] = {
                 "playing": false
             }
@@ -89,20 +89,24 @@ Module.register("MMM-SonosSelect",{
 		item.addEventListener("click", function () {
             console.log('button pressed: ' + num);
             var url = self.config.serverIP;
-            //self.sendSocketNotification("GET_SONOS", url);
             playing = self.rooms[num].playing
             if (playing) {
-                //url += "/" + self.config.buttons[num].room + "/leave"
-                url += "/" + self.config.buttons[num].room + "/pause"
+                if (this.coordinator != null) { // There is a room playing music
+                    url += "/" + self.config.buttons[num].room + "/leave"
+                } else {
+                    url += "/" + self.config.buttons[num].room + "/pause"
+                }
                 self.rooms[num].playing = false;
             } else {
+                if (this.coordinator != null) { // There is a room playing music
+                    url += "/" + self.config.buttons[this.coordinator].room + "/add/" + self.config.buttons[num].room;
+                } else { // No room is playing music
+                    url += "/" + self.config.buttons[num].room + "/play"
+                }
                 self.rooms[num].playing = true;
-                url += "/" + self.config.buttons[num].room + "/play"
-
-                // Need to calculate the url.
             }
             
-            self.sendSocketNotification("SONOS_GROUP_UNGROUP", url);
+            self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
             self.updateDom();
 		});
 		// Fixes the aligning.
@@ -116,17 +120,17 @@ Module.register("MMM-SonosSelect",{
         if (!self.config.showBorder) {
             item.style.borderColor = "black";
         }
-		// Adds the Font-Awesome symbol if specified.
+
         if (data.symbol) {
             var symbol = document.createElement("span");
-            symbol.className = "modulebar-picture fa fa-" + data.symbol;
+            symbol.className = "room-symbol fa fa-" + data.symbol;
 			// Sets the size on the symbol if specified.
             if (data.size) {
                 symbol.className += " fa-" + data.size;
                 symbol.className += data.size == 1 ? "g" : "x";
             }
 
-                    // Test if button should be shaded or not
+            // Set the button as on or off
             if (this.rooms[num].playing) {
                 item.className += " room-button-on";
                 symbol.className += " room-symbol-on";
@@ -138,7 +142,6 @@ Module.register("MMM-SonosSelect",{
 			// Adds the symbol to the item.
             item.appendChild(symbol);
         }
-		// All done. :)
         return item;
     },
 
@@ -151,13 +154,42 @@ Module.register("MMM-SonosSelect",{
     processData: function(data) {
         console.log("processing data from sonos");
         console.log(data);
+        for (var group in data) {
+            for (var member in group.members) {
+                for (var num in this.config.buttons) { // Look through each room specified in config
+                    var buttonRoomName = this.config.buttons[num].room;
+                    if (buttonRoomName == member.roomName) { // Find the button that matches this member
+                        if (member.playbackState == "PLAYING") {
+                            this.rooms[num].playing = true;
+                        } else {
+                            this.rooms[num].playing = false;
+                        }
+                    }
+                }
+            }
+        }
+    },
+
+    setCoordinator: function() {
+        var coordinatorFound = false;
+        for (var num in this.rooms) {
+            var room = this.rooms[num];
+            if (room.playing) {
+                this.coordinator = num;
+                coordinatorFound = true;
+            }
+        }
+
+        if (!coordinatorFound) {
+            this.coordinator = null;
+        }
     },
 
     socketNotificationReceived: function(notification, payload) {
         var self = this;
         if (notification === "SONOS_DATA") {
             self.processData(payload);
-        } else if (notification === "SONOS_DATA_ERR") {
+            self.setCoordinator();
         }
     },
 
@@ -166,7 +198,6 @@ Module.register("MMM-SonosSelect",{
         console.log('scheduleupdates called')
         var self = this;
         setInterval(function() {
-            console.log('called setInterval')
             self.getData();
         }, nextLoad);
     }

@@ -37,6 +37,10 @@
     border-color: #aaa;
 }
 
+.room-symbol {
+    margin: 1px 1px;
+}
+
 .room-symbol-on {
     color:rgb(255, 255, 255);
 }
