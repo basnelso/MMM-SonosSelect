@@ -53,7 +53,7 @@ Module.register("MMM-SonosSelect",{
         for (var num in this.config.buttons) {
             //var room_name = this.config.buttons[num].room
             this.groups[num] = {
-                "playing": false
+                "playing": true
             }
         }
     },
