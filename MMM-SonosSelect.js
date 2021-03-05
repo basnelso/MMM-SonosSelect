@@ -48,10 +48,8 @@ Module.register("MMM-SonosSelect",{
     start: function() {
         Log.info('Starting module: ' + this.name + ', version ' + this.config.version);
 
-        this.errMsg = '';
-
         this.scheduleUpdates();
-        self.getData();
+        this.getData();
 
         /*
         this.groups = {};
