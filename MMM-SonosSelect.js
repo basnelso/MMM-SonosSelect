@@ -77,7 +77,7 @@ Module.register("MMM-SonosSelect",{
             var control = document.createElement("span");
             control.appendChild(this.createRewindButton(this));
             control.appendChild(this.createPlayPauseButton(this));
-            control.appendChild(this.createSkip(this));
+            control.appendChild(this.createSkipButton(this));
             container.appendChild(control);
         }
 
@@ -140,7 +140,7 @@ Module.register("MMM-SonosSelect",{
 
     createSkipButton: function(self) {
         var item = document.createElement("span");
-		item.id = self.identifier + "_button_" + 10;
+		item.id = self.identifier + "_button_" + 12;
 		item.className = "button";
 		item.style.minWidth = self.config.minWidth;
         item.style.minHeight = self.config.minHeight;
