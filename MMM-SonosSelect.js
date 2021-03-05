@@ -158,6 +158,7 @@ Module.register("MMM-SonosSelect",{
             for (var member in group.members) {
                 for (var num in this.config.buttons) { // Look through each room specified in config
                     var buttonRoomName = this.config.buttons[num].room;
+                    console.log('about to compare: ' + buttonRoomName + ' with: ' + member.roomName);
                     if (buttonRoomName == member.roomName) { // Find the button that matches this member
                         if (member.playbackState == "PLAYING") {
                             console.log(this.config.buttons[num].room + ' is playing')
