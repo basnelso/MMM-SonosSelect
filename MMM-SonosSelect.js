@@ -154,10 +154,10 @@ Module.register("MMM-SonosSelect",{
     },
 
     processData: function(data) {
-        for (var group in data) {
+        for (var i in data) {
             console.log("in group: ")
-            console.log(group)
-            for (var member in group.members) {
+            console.log(i)
+            for (var member in data[i].members) {
                 console.log("in member: ")
                 console.log(member)
                 for (var num in this.config.buttons) { // Look through each room specified in config
