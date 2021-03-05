@@ -155,21 +155,12 @@ Module.register("MMM-SonosSelect",{
 
     processData: function(data) {
         for (var i in data) {
-            console.log("in group: ");
-            console.log(i);
             var group = data[i];
-            console.log(group);
             var members = group.members;
-            console.log(members);
             for (var j in members) {
                 var member = members[j]
-                console.log("in member: ")
-                console.log(member)
                 for (var num in this.config.buttons) { // Look through each room specified in config
-                    console.log('in button: ')
-                    console.log(num)
                     var buttonRoomName = this.config.buttons[num].room;
-                    console.log('about to compare: ' + buttonRoomName + ' with: ' + member.roomName);
                     if (buttonRoomName == member.roomName) { // Find the button that matches this member
                         if (member.playbackState == "PLAYING") {
                             console.log(this.config.buttons[num].room + ' is playing')
