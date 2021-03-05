@@ -50,6 +50,7 @@ Module.register("MMM-SonosSelect",{
         this.scheduleUpdates();
 
         this.coordinator = null;
+        this.lastPlayed = null;
         this.rooms = {};
         for (var num in this.config.buttons) {
             this.rooms[num] = {
@@ -74,11 +75,87 @@ Module.register("MMM-SonosSelect",{
 
         if (true) {
             var control = document.createElement("span");
-            control.appendChild(this.createRoomButton(this, 1, this.config.buttons[1]));
+            control.appendChild(this.createRewindButton(this));
+            control.appendChild(this.createPlayPauseButton(this));
+            control.appendChild(this.createSkip(this));
             container.appendChild(control);
         }
 
         return container;
+    },
+
+    createPlayPauseButton: function(self) {
+        var item = document.createElement("span");
+		item.id = self.identifier + "_button_" + 11;
+		item.className = "button";
+		item.style.minWidth = self.config.minWidth;
+        item.style.minHeight = self.config.minHeight;
+
+        var playing = (self.coordinator != null);
+
+        item.addEventListener("click", function () {
+            var url = self.config.serverIP;
+            if (playing) { // Music playing
+                url += "/" + self.config.buttons[self.coordinator].room + "/pause";
+            } else if (!playing && self.lastPlayed != null) { // Music paused on lastplayed
+                url += "/" + self.config.buttons[self.lastPlayed].room + "/play";
+            }
+            self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
+            self.updateDom();
+        });
+
+        var symbol = document.createElement("span");
+
+        if (playing) {
+            symbol.className = "play-symbol fa fa-play";
+        } else {
+            symbol.className = "play-symbol fa fa-pause";
+        }
+
+        // Adds the symbol to the item.
+        item.appendChild(symbol);
+
+        return item;
+    },
+
+    createRewindButton: function(self) {
+        var item = document.createElement("span");
+		item.id = self.identifier + "_button_" + 10;
+		item.className = "button";
+		item.style.minWidth = self.config.minWidth;
+        item.style.minHeight = self.config.minHeight;
+
+        item.addEventListener("click", function () {
+            var url = self.config.serverIP;
+            self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
+            self.updateDom();
+        });
+
+        var symbol = document.createElement("span");
+        symbol.className = "play-symbol fa fa-backward";
+        item.appendChild(symbol);
+
+        return item;
+    },
+
+    createSkipButton: function(self) {
+        var item = document.createElement("span");
+		item.id = self.identifier + "_button_" + 10;
+		item.className = "button";
+		item.style.minWidth = self.config.minWidth;
+        item.style.minHeight = self.config.minHeight;
+
+        item.addEventListener("click", function () {
+            var url = self.config.serverIP;
+            self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
+            self.updateDom();
+        });
+
+        var symbol = document.createElement("span");
+        symbol.className = "play-symbol fa fa-forward";
+        item.appendChild(symbol);
+
+        return item;
     },
 
 	// Creates the buttons.
@@ -88,7 +165,7 @@ Module.register("MMM-SonosSelect",{
         // Builds a unique identity / button.
 		item.id = self.identifier + "_button_" + num;
         // Sets a class to all buttons.
-		item.className = "room-button";
+		item.className = "button";
 
         var self = this;
         // Makes sure the width and height is at least the defined minimum.

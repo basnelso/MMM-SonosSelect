@@ -13,7 +13,7 @@
     text-align: center;
 }
 
-.room-button {
+.button {
     z-index: 1;
     /* Border */
     border-style: solid;
@@ -47,4 +47,8 @@
 
 .room-symbol-off {
     color: #aaa;
+}
+
+.play-symbol {
+    color:rgb(255, 255, 255);
 }
