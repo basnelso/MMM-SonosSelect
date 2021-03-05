@@ -49,8 +49,6 @@ Module.register("MMM-SonosSelect",{
         Log.info('Starting module: ' + this.name + ', version ' + this.config.version);
 
         this.scheduleUpdates();
-        this.getData();
-
         /*
         this.groups = {};
         for (var num in this.config.buttons) {
@@ -140,9 +138,10 @@ Module.register("MMM-SonosSelect",{
 
     scheduleUpdates: function() {
         var nextLoad = this.config.updateInterval;
-
+        console.log('scheduleupdates called')
         var self = this;
         setInterval(function() {
+            console.log('called setInterval')
             self.getData();
         }, nextLoad);
     }
