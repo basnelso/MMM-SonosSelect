@@ -88,8 +88,18 @@ Module.register("MMM-SonosSelect",{
         item.style.minHeight = self.config.minHeight;
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
 		item.addEventListener("click", function () {
-            var self = this;
-            self.buttonPressed(num);
+            console.log('button pressed: ' + num);
+            var url = this.config.serverIP;
+            //self.sendSocketNotification("GET_SONOS", url);
+            playing = this.rooms[num].playing
+            if (playing) {
+                url += "/" + this.config.buttons[num].room + "/leave"
+                this.rooms[num].playing = false;
+            } else {
+                this.rooms[num].playing = true;
+            }
+    
+            this.updateDom();
 		});
 		// Fixes the aligning.
         item.style.flexDirection = {
@@ -126,21 +136,6 @@ Module.register("MMM-SonosSelect",{
         }
 		// All done. :)
         return item;
-    },
-
-    buttonPressed: function(num) {
-        console.log('button pressed: ' + num);
-        var url = self.config.serverIP;
-        //self.sendSocketNotification("GET_SONOS", url);
-        playing = this.rooms[num].playing
-        if (playing) {
-            url += "/" + self.config.buttons[num].room + "/leave"
-            this.rooms[num].playing = false;
-        } else {
-            this.rooms[num].playing = true;
-        }
-
-        this.updateDom();
     },
 
     getData: function() {
