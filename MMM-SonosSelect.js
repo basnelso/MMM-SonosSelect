@@ -107,10 +107,17 @@ Module.register("MMM-SonosSelect",{
         var symbol = document.createElement("span");
 
         if (playing) {
-            symbol.className = "play-symbol fa fa-play";
-        } else {
             symbol.className = "play-symbol fa fa-pause";
+        } else {
+            symbol.className = "play-symbol fa fa-play";
         }
+
+        item.style.flexDirection = {
+            "right"  : "row-reverse",
+            "left"   : "row",
+            "top"    : "column",
+            "bottom" : "column-reverse"
+        }["left"];
 
         // Adds the symbol to the item.
         item.appendChild(symbol);
@@ -135,6 +142,13 @@ Module.register("MMM-SonosSelect",{
         symbol.className = "play-symbol fa fa-backward";
         item.appendChild(symbol);
 
+        item.style.flexDirection = {
+            "right"  : "row-reverse",
+            "left"   : "row",
+            "top"    : "column",
+            "bottom" : "column-reverse"
+        }["left"];
+
         return item;
     },
 
@@ -155,6 +169,13 @@ Module.register("MMM-SonosSelect",{
         symbol.className = "play-symbol fa fa-forward";
         item.appendChild(symbol);
 
+        item.style.flexDirection = {
+            "right"  : "row-reverse",
+            "left"   : "row",
+            "top"    : "column",
+            "bottom" : "column-reverse"
+        }["left"];
+        
         return item;
     },
 
