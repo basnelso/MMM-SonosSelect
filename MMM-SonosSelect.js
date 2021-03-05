@@ -53,7 +53,7 @@ Module.register("MMM-SonosSelect",{
         for (var num in this.config.buttons) {
             //var room_name = this.config.buttons[num].room
             this.rooms[num] = {
-                "playing": true
+                "playing": false
             }
         }
     },
@@ -92,12 +92,17 @@ Module.register("MMM-SonosSelect",{
             //self.sendSocketNotification("GET_SONOS", url);
             playing = self.rooms[num].playing
             if (playing) {
-                url += "/" + self.config.buttons[num].room + "/leave"
+                //url += "/" + self.config.buttons[num].room + "/leave"
+                url += "/" + self.config.buttons[num].room + "/pause"
                 self.rooms[num].playing = false;
             } else {
                 self.rooms[num].playing = true;
+                url += "/" + self.config.buttons[num].room + "/play"
+
+                // Need to calculate the url.
             }
-    
+            
+            self.sendSocketNotification("SONOS_GROUP_UNGROUP", url);
             self.updateDom();
 		});
 		// Fixes the aligning.
