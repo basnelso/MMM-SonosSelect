@@ -105,6 +105,7 @@ Module.register("MMM-SonosSelect",{
             var url = self.config.serverIP;
             if (playing) { // Music playing
                 url += "/" + self.config.buttons[self.coordinator].room + "/pause";
+                self.lastPlayed = self.coordinator;
                 self.coordinator = null;
             } else if (!playing && self.lastPlayed != null) { // Music paused on lastplayed
                 url += "/" + self.config.buttons[self.lastPlayed].room + "/play";
@@ -215,6 +216,7 @@ Module.register("MMM-SonosSelect",{
                     url += "/" + self.config.buttons[num].room + "/leave"
                 } else {
                     url += "/" + self.config.buttons[num].room + "/pause"
+                    self.lastPlayed = self.coordinator;
                 }
             } else {
                 if (self.coordinator != null) { // There is a room playing music
