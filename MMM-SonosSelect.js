@@ -143,11 +143,16 @@ Module.register("MMM-SonosSelect",{
 		item.style.minWidth = self.config.minWidth;
         item.style.minHeight = self.config.minHeight;
         item.style.borderColor = "black";
+        
+        var playing = (self.coordinator != null);
 
         item.addEventListener("click", function () {
             var url = self.config.serverIP;
-            self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
-            self.updateDom();
+            if (playing) { // Music playing
+                url += "/" + self.config.buttons[self.coordinator].room + "/previous";
+                self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
+                self.updateDom();
+            }
         });
 
         var symbol = document.createElement("span");
@@ -174,8 +179,11 @@ Module.register("MMM-SonosSelect",{
 
         item.addEventListener("click", function () {
             var url = self.config.serverIP;
-            self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
-            self.updateDom();
+            if (playing) { // Music playing
+                url += "/" + self.config.buttons[self.coordinator].room + "/next";
+                self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
+                self.updateDom();
+            }
         });
 
         var symbol = document.createElement("span");
