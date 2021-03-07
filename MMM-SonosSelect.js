@@ -177,6 +177,8 @@ Module.register("MMM-SonosSelect",{
         item.style.minHeight = self.config.minHeight;
         item.style.borderColor = "black";
 
+        var playing = (self.coordinator != null);
+
         item.addEventListener("click", function () {
             var url = self.config.serverIP;
             if (playing) { // Music playing
