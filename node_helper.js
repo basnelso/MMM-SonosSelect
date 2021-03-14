@@ -15,7 +15,7 @@ module.exports = NodeHelper.create({
                 self.sendSocketNotification('SONOS_DATA_ERR', data);
             } else {
                 var data = JSON.parse(body);
-                self.sendSocketNotification('SONOS_DATA', data);
+                self.sendSocketNotification('SONOS_ZONE_DATA', data);
             }
 
         });    

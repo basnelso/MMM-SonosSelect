@@ -16,13 +16,14 @@ Module.register("MMM-SonosSelect",{
 	
     defaults: {
         // Determines if the border around the buttons should be shown.
-        showBorder: true,
         minWidth: "50px",
         minHeight: "50px",
         // The direction of the bar. Options: row, column, row-reverse or column-reverse
         direction: "row",
 		serverIP: "http://localhost:5005",
         updateInterval: 20 * 1000, // 20 seconds
+        updateExternally: true,
+        broadcastStatus: false,
 		buttons: {
             "1": {
 				room: "Living Room",
@@ -36,7 +37,7 @@ Module.register("MMM-SonosSelect",{
 				room: "Bathroom",
                 symbol: "toilet"
             },
-		}
+		},
     },
 
     // Define required styles.
@@ -47,14 +48,19 @@ Module.register("MMM-SonosSelect",{
     start: function() {
         Log.info('Starting module: ' + this.name + ', version ' + this.config.version);
 
-        this.scheduleUpdates();
+        this.getZoneData();
+        if (!this.updateExternally) {
+            this.scheduleUpdates();
+        }
 
+        this.sleepTime = 0;
         this.coordinator = null;
-        this.lastPlayed = null;
+        this.numRoomsPlaying = 0;
         this.rooms = {};
         for (var num in this.config.buttons) {
             this.rooms[num] = {
-                "playing": false
+                "playing": false,
+                "wasPlaying": false,
             }
         }
     },
@@ -70,7 +76,7 @@ Module.register("MMM-SonosSelect",{
 		
         // Sends each button to the "createButton" function be created.
 		for (var num in this.config.buttons) {
-			menu.appendChild(this.createRoomButton(this, num, this.config.buttons[num]));
+			menu.appendChild(this.createRoomButton(num, this.config.buttons[num]));
         }
         container.appendChild(menu);
 
@@ -81,9 +87,9 @@ Module.register("MMM-SonosSelect",{
             control.id = this.identifier + "_playpause";
             control.style.flexDirection = this.config.direction;
 
-            control.appendChild(this.createRewindButton(this));
-            control.appendChild(this.createPlayPauseButton(this));
-            control.appendChild(this.createSkipButton(this));
+            control.appendChild(this.createRewindButton());
+            control.appendChild(this.createPlayPauseButton());
+            control.appendChild(this.createSkipButton());
 
             container.appendChild(control);
         }
@@ -91,200 +97,182 @@ Module.register("MMM-SonosSelect",{
         return container;
     },
 
-    createPlayPauseButton: function(self) {
-        var item = document.createElement("span");
-		item.id = self.identifier + "_button_" + 11;
-		item.className = "button";
-		item.style.minWidth = self.config.minWidth;
-        item.style.minHeight = self.config.minHeight;
-        item.style.borderColor = "black";
+    createPlayPauseButton: function() {
+        var button = document.createElement("span");
+		button.id = this.identifier + "_button_" + 11;
+		button.className = "button control-button";
+		button.style.minWidth = this.config.minWidth;
+        button.style.minHeight = this.config.minHeight;
 
-        var playing = (self.coordinator != null);
-
-        item.addEventListener("click", function () {
+        var self = this;
+        button.addEventListener("click", function () {
             var url = self.config.serverIP;
-            if (playing) { // Music playing
+            if (self.numRoomsPlaying > 0) { // Music playing
                 url += "/" + self.config.buttons[self.coordinator].room + "/pause";
-                self.lastPlayed = self.coordinator;
-                self.coordinator = null;
-            } else if (!playing && self.lastPlayed != null) { // Music paused on lastplayed
-                url += "/" + self.config.buttons[self.lastPlayed].room + "/play";
-                self.coordinator = self.lastPlayed;
+                self.pauseSystem();
+            } else if (self.coordinator != null) { // Music paused on coordinator
+                url += "/" + self.config.buttons[self.coordinator].room + "/play";
+                self.playSystem();
             }
-            self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
-            self.updateDom();
+            self.clickButton(url);
         });
 
         var symbol = document.createElement("span");
 
-        if (playing) {
-            symbol.className = "play-symbol fa fa-pause";
+        if (this.numRoomsPlaying > 0) {
+            symbol.className = "control-symbol fa fa-pause";
         } else {
-            symbol.className = "play-symbol fa fa-play";
+            symbol.className = "control-symbol fa fa-play";
         }
 
-        item.style.flexDirection = {
-            "right"  : "row-reverse",
-            "left"   : "row",
-            "top"    : "column",
-            "bottom" : "column-reverse"
-        }["left"];
 
         // Adds the symbol to the item.
-        item.appendChild(symbol);
+        button.appendChild(symbol);
 
-        return item;
+        return button;
     },
 
-    createRewindButton: function(self) {
-        var item = document.createElement("span");
-		item.id = self.identifier + "_button_" + 10;
-		item.className = "button";
-		item.style.minWidth = self.config.minWidth;
-        item.style.minHeight = self.config.minHeight;
-        item.style.borderColor = "black";
+    pauseSystem: function() {
+        this.numRoomsPlaying = 0;
+        for (var num in this.rooms) {
+            var room = this.rooms[num];
+            if (room.playing) {
+                room.wasPlaying = true;
+                room.playing = false;
+                this.numRoomsPlaying--;
+            } else {
+                room.wasPlaying = false;
+            }
+        }    
+    },
+
+    playSystem: function() {
+        for (var num in this.rooms) {
+            var room = this.rooms[num];
+            if (room.wasPlaying) {
+                room.wasPlaying = false;
+                room.playing = true;
+                this.numRoomsPlaying++;
+            }
+        }   
+    },
+
+    createRewindButton: function() {
+        var button = document.createElement("span");
+		button.id = this.identifier + "_button_" + 10;
+		button.className = "button control-button";
+		button.style.minWidth = this.config.minWidth;
+        button.style.minHeight = this.config.minHeight;
         
-        var playing = (self.coordinator != null);
-
-        item.addEventListener("click", function () {
-            var url = self.config.serverIP;
-            if (playing) { // Music playing
+        var self = this;
+        button.addEventListener("click", function () {
+            if (self.numRoomsPlaying > 0) { // Music playing
+                var url = self.config.serverIP;
                 url += "/" + self.config.buttons[self.coordinator].room + "/previous";
-                self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
-                self.updateDom();
+                self.clickButton(url);
             }
         });
 
         var symbol = document.createElement("span");
-        symbol.className = "play-symbol fa fa-backward";
-        item.appendChild(symbol);
-
-        item.style.flexDirection = {
-            "right"  : "row-reverse",
-            "left"   : "row",
-            "top"    : "column",
-            "bottom" : "column-reverse"
-        }["left"];
-
-        return item;
+        symbol.className = "control-symbol fa fa-backward";
+        
+        button.appendChild(symbol);
+        return button;
     },
 
-    createSkipButton: function(self) {
-        var item = document.createElement("span");
-		item.id = self.identifier + "_button_" + 12;
-		item.className = "button";
-		item.style.minWidth = self.config.minWidth;
-        item.style.minHeight = self.config.minHeight;
-        item.style.borderColor = "black";
+    createSkipButton: function() {
+        var button = document.createElement("span");
+		button.id = this.identifier + "_button_" + 12;
+		button.className = "button control-button";
+		button.style.minWidth = this.config.minWidth;
+        button.style.minHeight = this.config.minHeight;
 
-        var playing = (self.coordinator != null);
-
-        item.addEventListener("click", function () {
-            var url = self.config.serverIP;
-            if (playing) { // Music playing
+        var self = this;
+        button.addEventListener("click", function () {
+            if (self.numRoomsPlaying > 0) { // Music playing
+                var url = self.config.serverIP;
                 url += "/" + self.config.buttons[self.coordinator].room + "/next";
-                self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
-                self.updateDom();
+                self.clickButton(url);
             }
         });
 
         var symbol = document.createElement("span");
-        symbol.className = "play-symbol fa fa-forward";
-        item.appendChild(symbol);
-
-        item.style.flexDirection = {
-            "right"  : "row-reverse",
-            "left"   : "row",
-            "top"    : "column",
-            "bottom" : "column-reverse"
-        }["left"];
-
-        return item;
+        symbol.className = "control-symbol fa fa-forward";
+        
+        button.appendChild(symbol);
+        return button;
     },
 
 	// Creates the buttons.
-    createRoomButton: function (self, num, data) {
-		// Creates the span element to contain all the buttons.
-		var item = document.createElement("span");
-        // Builds a unique identity / button.
-		item.id = self.identifier + "_button_" + num;
-        // Sets a class to all buttons.
-		item.className = "button";
+    createRoomButton: function (num, data) {
+		var button = document.createElement("span");
+		button.id = this.identifier + "_button_" + num;
+		button.className = "button";
 
-        var self = this;
         // Makes sure the width and height is at least the defined minimum.
-		item.style.minWidth = self.config.minWidth;
-        item.style.minHeight = self.config.minHeight;
+		button.style.minWidth = this.config.minWidth;
+        button.style.minHeight = this.config.minHeight;
+
 		// When a button is clicked, the room either gets grouped/ungrouped depending on its status.
-		item.addEventListener("click", function () {
+        var self = this;
+        button.addEventListener("click", function () {
             var url = self.config.serverIP;
-            playing = self.rooms[num].playing
-            if (playing) {
-                self.rooms[num].playing = false;
-                self.setCoordinator();
-                if (self.coordinator != null) { // There is still a room playing music
+            room_playing = self.rooms[num].playing
+            if (room_playing) {
+                if (self.numRoomsPlaying > 1) { // More than 1 room playing music
                     url += "/" + self.config.buttons[num].room + "/leave"
+                    self.rooms[num].playing = false;
+                    self.numRoomsPlaying--;
                 } else {
                     url += "/" + self.config.buttons[num].room + "/pause"
-                    self.lastPlayed = self.coordinator;
+                    self.pauseSystem();
                 }
             } else {
-                if (self.coordinator != null) { // There is a room playing music
+                if (self.numRoomsPlaying > 0) { // There is a room playing music
                     url += "/" + self.config.buttons[self.coordinator].room + "/add/" + self.config.buttons[num].room;
+                    self.rooms[num].playing = true;
+                    self.numRoomsPlaying++;
                 } else { // No room is playing music
                     url += "/" + self.config.buttons[num].room + "/play"
+                    self.playSystem();
                 }
-                self.rooms[num].playing = true;
             }
-            console.log('button pressed: ' + num);
-            console.log(self.rooms)
-            console.log(url);
-            self.sendSocketNotification("SONOS_BUTTON_CLICK", url);
-            self.updateDom();
+            self.clickButton(url);
 		});
-		// Fixes the aligning.
-        item.style.flexDirection = {
-            "right"  : "row-reverse",
-            "left"   : "row",
-            "top"    : "column",
-            "bottom" : "column-reverse"
-        }["left"];
-		// Sets the border around the symbol/picture/text to black.
-        if (!self.config.showBorder) {
-            item.style.borderColor = "black";
+
+        // Symbol dynamic css
+        var symbol = document.createElement("span");
+        symbol.className = "room-symbol fa fa-" + data.symbol;
+
+        // Set the button as on or off
+        if (this.rooms[num].playing) {
+            button.className += " room-button-on";
+            symbol.className += " room-symbol-on";
+        } else {
+            button.className += " room-button-off";
+            symbol.className += " room-symbol-off";
         }
 
-        if (data.symbol) {
-            var symbol = document.createElement("span");
-            symbol.className = "room-symbol fa fa-" + data.symbol;
-			// Sets the size on the symbol if specified.
-            if (data.size) {
-                symbol.className += " fa-" + data.size;
-                symbol.className += data.size == 1 ? "g" : "x";
-            }
+	    // Adds the symbol to the item.
+        button.appendChild(symbol);
+        return button;
+    },
 
-            // Set the button as on or off
-            if (this.rooms[num].playing) {
-                item.className += " room-button-on";
-                symbol.className += " room-symbol-on";
-            } else {
-                item.className += " room-button-off";
-                symbol.className += " room-symbol-off";
+    updateSystem: function() {
+        // Determine if system is playing and determine coordinator
+        this.numRoomsPlaying = 0;
+        for (var num in this.rooms) {
+            var room = this.rooms[num];
+            if (room.playing) {
+                this.coordinator = num;
+                this.numRoomsPlaying++;
             }
-
-			// Adds the symbol to the item.
-            item.appendChild(symbol);
         }
-        return item;
+        this.updateDom();
     },
 
-    getData: function() {
-        var self = this;
-        var url = self.config.serverIP + "/zones";
-        this.sendSocketNotification('SONOS_GET_DATA', url);
-    },
-
-    processData: function(data) {
+    // Determine the rooms that are currently playing music
+    processZoneData: function(data) {
         for (var i in data) {
             var group = data[i];
             var members = group.members;
@@ -302,38 +290,49 @@ Module.register("MMM-SonosSelect",{
                 }
             }
         }
-        this.updateDom();
+        this.updateSystem();
     },
 
-    setCoordinator: function() {
-        var coordinatorFound = false;
-        for (var num in this.rooms) {
-            var room = this.rooms[num];
-            if (room.playing) {
-                this.coordinator = num;
-                coordinatorFound = true;
-            }
-        }
-
-        if (!coordinatorFound) {
-            this.coordinator = null;
-        }
+    clickButton: function(url) {
+        this.sleeping = 5;
+        this.sendSocketNotification("SONOS_BUTTON_CLICK", url);
+        this.updateSystem();
     },
 
     socketNotificationReceived: function(notification, payload) {
-        var self = this;
-        if (notification === "SONOS_DATA") {
-            self.processData(payload);
-            self.setCoordinator();
+        if (!this.config.updateExternally && notification == "SONOS_ZONE_DATA") {
+            if (!sleeping) {
+                this.processZoneData(payload);
+                if (this.config.broadcastStatus) {
+                    this.sendNotification("SONOS_ZONE_DATA", payload);
+                }
+            } else {
+                this.sleeping--;
+            }
         }
     },
 
+    notificationReceived: function(notification, payload) {
+        if (this.config.updateExternally && notification == "SONOS_ZONE_DATA") {
+            if (!this.sleeping) {
+                this.processZoneData(payload);
+            } else {
+                this.sleeping--;
+            }
+        }
+    },
+
+    getZoneData: function() {
+        var self = this;
+        var url = self.config.serverIP + "/zones";
+        this.sendSocketNotification('SONOS_GET_DATA', url);
+    },
+
     scheduleUpdates: function() {
-        var nextLoad = this.config.updateInterval;
         var self = this;
         setInterval(function() {
-            self.getData();
-        }, nextLoad);
+            self.getZoneData();
+        }, this.config.updateInterval);
     }
 });	
 
