@@ -106,7 +106,7 @@ Module.register("MMM-SonosSelect",{
         volumeSlider = document.createElement("input");
         volumeSlider.type = "range";
         volumeSlider.id = "master-volume";
-
+        volumeSlider.class = "slider";
         if (this.coordinator != null) {
             volumeSlider.value = this.rooms[this.coordinator].groupVolume;
         } else {
