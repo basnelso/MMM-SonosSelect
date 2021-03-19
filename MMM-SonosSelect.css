@@ -8,9 +8,17 @@
  *                                                   *
  *****************************************************/
 .icon-menu {
-    display: flex;
-    align-items: stretch;
+    display: inline-flex;
     text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.control-menu {
+    max-width: 300px;
+	display: inline-flex;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .button {
@@ -58,10 +66,28 @@
     color:rgb(255, 255, 255);
 }
 
+.volume-wrapper {
+    display: grid;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.slider-icon {
+    grid-area: 1 / 1;
+    margin-right: 88%;
+    font-size: 7px;
+    margin-top: 3px;
+    color: black;
+}
+
+
 input[type=range] {
     -webkit-appearance: none;
     width: 100%;
-    height: 5px;
+    height: 8px;
     border-radius: 5px;  
     background: #ffffff;
     outline: none;
@@ -74,7 +100,7 @@ input[type=range]::-webkit-slider-thumb {
     appearance: none;
     width: 20px;
     height: 20px;
-    border-radius: 50%; 
+    border-radius: 50%;
     background: #ffffff;
     cursor: pointer;
 }

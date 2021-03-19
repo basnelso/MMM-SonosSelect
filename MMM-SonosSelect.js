@@ -21,7 +21,7 @@ Module.register("MMM-SonosSelect",{
         // The direction of the bar. Options: row, column, row-reverse or column-reverse
         direction: "row",
 		serverIP: "http://localhost:5005",
-        updateInterval: 20 * 1000, // 20 seconds
+        updateInterval: 5 * 1000, // 20 seconds
         updateExternally: true,
         broadcastStatus: false,
 		buttons: {
@@ -37,6 +37,16 @@ Module.register("MMM-SonosSelect",{
 				room: "Bathroom",
                 symbol: "toilet"
             },
+            /*
+            "4": {
+				room: "Bedroom",
+                symbol: "bed"
+            },
+            "5": {
+				room: "Desk",
+                symbol: "clock"
+            },
+            */
 		},
     },
 
@@ -88,7 +98,7 @@ Module.register("MMM-SonosSelect",{
 
         var control = document.createElement("span");
         
-        control.className = "icon-menu";
+        control.className = "control-menu";
         control.id = this.identifier + "_playpause";
         control.style.flexDirection = this.config.direction;
 
@@ -96,35 +106,64 @@ Module.register("MMM-SonosSelect",{
         control.appendChild(this.createPlayPauseButton());
         control.appendChild(this.createSkipButton());
         container.appendChild(control);
-        
-        container.appendChild(this.createVolumeSlider());
+
+        // Create volume sliders for active rooms
+		for (var num in this.config.buttons) {
+            if (this.rooms[num].playing) {
+                container.appendChild(this.createVolumeSlider(num));
+            }
+        }        
+        // Create master volume slider
+        container.appendChild(this.createVolumeSlider(-1));
 
         return container;
     },
 
-    createVolumeSlider: function() {
+
+    createVolumeSlider: function(roomNum) {
+        volumeWrapper = document.createElement("div");
+        volumeWrapper.className = "volume-wrapper";
+
         volumeSlider = document.createElement("input");
         volumeSlider.type = "range";
-        volumeSlider.id = "master-volume";
-        volumeSlider.class = "slider";
+        volumeSlider.style.gridArea = "1 / 1"
+
         if (this.coordinator != null) {
-            volumeSlider.value = this.rooms[this.coordinator].groupVolume;
+            if (roomNum === -1) { // Master volume slider
+                volumeSlider.value = this.rooms[this.coordinator].groupVolume;
+            } else { // Room volume slider
+                volumeSlider.value = this.rooms[roomNum].volume;
+            }
         } else {
             volumeSlider.value = 0;
         }
 
         var self = this;
         volumeSlider.addEventListener("change", function(val) {
-            self.sliderSleep = 5;
-            volume = val.currentTarget.value;
-            self.rooms[self.coordinator].groupVolume = volume;
-
-            var url = self.config.serverIP + "/" + self.config.buttons[self.coordinator].room + "/groupVolume/" + volume;
-            console.log(url);
+            var url = self.config.serverIP + "/"
+            var selected_volume = val.currentTarget.value;
+            if (roomNum === -1) { // Master volume slider
+                self.rooms[self.coordinator].groupVolume = selected_volume;
+                url += self.config.buttons[self.coordinator].room + "/groupVolume/" + selected_volume;
+            } else {
+                self.rooms[roomNum].volume = selected_volume;
+                url += self.config.buttons[roomNum].room + "/volume/" + selected_volume;
+            }
+            
+            self.sliderSleep = 2;
             self.sendSocketNotification("SONOS_SLIDER", url)
         })
 
-        return volumeSlider;
+        // Add icon to slider if its not the master slider
+        sliderIcon = document.createElement("span")
+        if (roomNum !== -1) {
+            sliderIcon.className = `slider-icon fa fa-${this.config.buttons[roomNum].symbol}`;
+        }
+
+        volumeWrapper.appendChild(volumeSlider);
+        volumeWrapper.appendChild(sliderIcon);
+
+        return volumeWrapper;
     },
 
     createPlayPauseButton: function() {
@@ -339,7 +378,7 @@ Module.register("MMM-SonosSelect",{
 
     socketNotificationReceived: function(notification, payload) {
         if (!this.config.updateExternally && notification == "SONOS_ZONE_DATA") {
-            if (!sleeping) {
+            if (!this.sleeping) {
                 this.processZoneData(payload);
                 if (this.config.broadcastStatus) {
                     this.sendNotification("SONOS_ZONE_DATA", payload);
