@@ -30,6 +30,8 @@ module.exports = NodeHelper.create({
             this.getSonosStatus(payload);
         } else if (notification == "SONOS_BUTTON_CLICK") {
             this.sendGet(payload);
+        } else if (notification == "SONOS_SLIDER") {
+            this.sendGet(payload);
         }
     }
 });

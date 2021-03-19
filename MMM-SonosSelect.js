@@ -54,13 +54,19 @@ Module.register("MMM-SonosSelect",{
         }
 
         this.sleepTime = 0;
+        this.sliderSleep = 0;
         this.coordinator = null;
+        this.masterVolume = 20;
         this.numRoomsPlaying = 0;
+
+
         this.rooms = {};
         for (var num in this.config.buttons) {
             this.rooms[num] = {
                 "playing": false,
                 "wasPlaying": false,
+                "volume": 0,
+                "groupVolume": 0
             }
         }
     },
@@ -80,21 +86,45 @@ Module.register("MMM-SonosSelect",{
         }
         container.appendChild(menu);
 
-        if (true) {
-            var control = document.createElement("span");
-            
-            control.className = "icon-menu";
-            control.id = this.identifier + "_playpause";
-            control.style.flexDirection = this.config.direction;
+        var control = document.createElement("span");
+        
+        control.className = "icon-menu";
+        control.id = this.identifier + "_playpause";
+        control.style.flexDirection = this.config.direction;
 
-            control.appendChild(this.createRewindButton());
-            control.appendChild(this.createPlayPauseButton());
-            control.appendChild(this.createSkipButton());
-
-            container.appendChild(control);
-        }
+        control.appendChild(this.createRewindButton());
+        control.appendChild(this.createPlayPauseButton());
+        control.appendChild(this.createSkipButton());
+        container.appendChild(control);
+        
+        container.appendChild(this.createVolumeSlider());
 
         return container;
+    },
+
+    createVolumeSlider: function() {
+        volumeSlider = document.createElement("input");
+        volumeSlider.type = "range";
+        volumeSlider.id = "master-volume";
+
+        if (this.coordinator != null) {
+            volumeSlider.value = this.rooms[this.coordinator].groupVolume;
+        } else {
+            volumeSlider.value = 0;
+        }
+
+        var self = this;
+        volumeSlider.addEventListener("change", function(val) {
+            self.sliderSleep = 5;
+            volume = val.currentTarget.value;
+            self.rooms[self.coordinator].groupVolume = volume;
+
+            var url = self.config.serverIP + "/" + self.config.buttons[self.coordinator].room + "/groupVolume/" + volume;
+            console.log(url);
+            self.sendSocketNotification("SONOS_SLIDER", url)
+        })
+
+        return volumeSlider;
     },
 
     createPlayPauseButton: function() {
@@ -283,6 +313,14 @@ Module.register("MMM-SonosSelect",{
                     if (buttonRoomName == member.roomName) { // Find the button that matches this member
                         if (member.state.playbackState == "PLAYING") {
                             this.rooms[num].playing = true;
+                            
+                            if (this.sliderSleep == 0) {
+                                this.rooms[num].groupVolume = member.groupState.volume;
+                                this.rooms[num].volume = member.state.volume;
+                            } else {
+                                this.sliderSleep--;
+                            }
+
                         } else {
                             this.rooms[num].playing = false;
                         }
@@ -333,6 +371,17 @@ Module.register("MMM-SonosSelect",{
         setInterval(function() {
             self.getZoneData();
         }, this.config.updateInterval);
+    },
+
+    suspend: function() {
+        // this method is triggered when a module is hidden using this.hide()
+
+        this.sleeping = true;
+
+    },
+
+    resume: function() {
+
     }
 });	
 
