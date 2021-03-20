@@ -66,7 +66,7 @@ Module.register("MMM-SonosSelect",{
         this.sleepTime = 0;
         this.sliderSleep = 0;
         this.coordinator = null;
-        this.masterVolume = 20;
+        this.masterVolume = 0;
         this.numRoomsPlaying = 0;
 
 
@@ -109,7 +109,7 @@ Module.register("MMM-SonosSelect",{
 
         // Create volume sliders for active rooms
 		for (var num in this.config.buttons) {
-            if (this.rooms[num].playing) {
+            if (this.rooms[num].playing && this.numRoomsPlaying > 1) {
                 container.appendChild(this.createVolumeSlider(num));
             }
         }        
