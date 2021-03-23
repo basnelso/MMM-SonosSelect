@@ -37,16 +37,10 @@ Module.register("MMM-SonosSelect",{
 				room: "Bathroom",
                 symbol: "toilet"
             },
-            /*
             "4": {
 				room: "Bedroom",
                 symbol: "bed"
             },
-            "5": {
-				room: "Desk",
-                symbol: "clock"
-            },
-            */
 		},
     },
 
