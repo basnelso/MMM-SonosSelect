@@ -32,15 +32,7 @@ Module.register("MMM-SonosSelect",{
 			"2": {
 				room: "Kitchen",
                 symbol: "utensils"
-            },
-			"3": {
-				room: "Bathroom",
-                symbol: "toilet"
-            },
-            "4": {
-				room: "Bedroom",
-                symbol: "bed"
-            },
+            }
 		},
     },
 
