@@ -24,6 +24,7 @@ Module.register("MMM-SonosSelect",{
         updateInterval: 5 * 1000, // 20 seconds
         updateExternally: true,
         broadcastStatus: false,
+        numRows: 1,
 		buttons: {
             "1": {
 				room: "Living Room",
@@ -77,7 +78,7 @@ Module.register("MMM-SonosSelect",{
     
         // Calculate grid columns for two rows
         var buttonCount = Object.keys(this.config.buttons).length;
-        var columns = Math.ceil(buttonCount / 2); // Two rows, so divide by 2
+        var columns = Math.ceil(buttonCount / this.config.numRows); // Two rows, so divide by 2
     
         menu.style.display = "grid";
         menu.style.gridTemplateColumns = `repeat(${columns}, 1fr)`; // Dynamic columns
