@@ -1,4 +1,4 @@
-# MMM-Modulebar
+# MMM-SonosSelect
 
 This an extension for the [MagicMirror²](https://magicmirror.builders/).
 
