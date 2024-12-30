@@ -68,40 +68,46 @@ Module.register("MMM-SonosSelect",{
     },
 
     // Override dom generator.
-    getDom: function() {
+    getDom: function () {
         var container = document.createElement("div");
-
-        var menu = document.createElement("span");
+    
+        var menu = document.createElement("div"); // Changed from "span" to "div" for grid layout
         menu.className = "icon-menu";
         menu.id = this.identifier + "_menu";
-        menu.style.flexDirection = this.config.direction;
-		
-        // Sends each button to the "createButton" function be created.
-		for (var num in this.config.buttons) {
-			menu.appendChild(this.createRoomButton(num, this.config.buttons[num]));
+    
+        // Calculate grid columns for two rows
+        var buttonCount = Object.keys(this.config.buttons).length;
+        var columns = Math.ceil(buttonCount / 2); // Two rows, so divide by 2
+    
+        menu.style.display = "grid";
+        menu.style.gridTemplateColumns = `repeat(${columns}, 1fr)`; // Dynamic columns
+        menu.style.gap = "10px"; // Add some spacing between buttons
+    
+        // Sends each button to the "createButton" function to be created.
+        for (var num in this.config.buttons) {
+            menu.appendChild(this.createRoomButton(num, this.config.buttons[num]));
         }
         container.appendChild(menu);
-
+    
         var control = document.createElement("span");
-        
         control.className = "control-menu";
         control.id = this.identifier + "_playpause";
-        control.style.flexDirection = this.config.direction;
-
+    
         control.appendChild(this.createRewindButton());
         control.appendChild(this.createPlayPauseButton());
         control.appendChild(this.createSkipButton());
         container.appendChild(control);
-
+    
         // Create volume sliders for active rooms
-		for (var num in this.config.buttons) {
+        for (var num in this.config.buttons) {
             if (this.rooms[num].playing && this.numRoomsPlaying > 1) {
                 container.appendChild(this.createVolumeSlider(num));
             }
-        }        
+        }
+    
         // Create master volume slider
         container.appendChild(this.createVolumeSlider(-1));
-
+    
         return container;
     },
 

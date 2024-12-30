@@ -7,9 +7,11 @@
  * MIT Licensed.                                     *
  *                                                   *
  *****************************************************/
-.icon-menu {
-    display: inline-flex;
-    text-align: center;
+ .icon-menu {
+    display: grid; /* Use grid layout */
+    justify-content: center; /* Center the grid horizontally */
+    align-items: center; /* Center the grid vertically */
+    gap: 10px; /* Space between buttons */
     margin-left: auto;
     margin-right: auto;
 }
