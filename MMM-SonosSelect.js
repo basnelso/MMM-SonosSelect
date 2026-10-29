@@ -20,6 +20,8 @@ Module.register("MMM-SonosSelect", {
         columns: 4,
         // Volume changes are sent at most this often while dragging; the speakers queue up anything faster.
         volumeThrottle: 250,
+        // Treat rooms playing TV audio (HDMI/optical) as idle so the panel only controls music.
+        ignoreTvAudio: true,
         buttons: {
             "1": {
                 room: "Living Room",
@@ -53,14 +55,21 @@ Module.register("MMM-SonosSelect", {
         return this.groups.find(group => group.memberNames.includes(roomName)) || null;
     },
 
+    isTvGroup: function(group) {
+        return this.config.ignoreTvAudio && group.source === 'tv';
+    },
+
+    // With ignoreTvAudio, a room playing the TV counts as idle, so it never lights up or becomes the
+    // group the panel controls.
     isPlaying: function(group) {
-        return group && (group.state === 'playing' || group.state === 'transitioning');
+        return !!group && !this.isTvGroup(group) && (group.state === 'playing' || group.state === 'transitioning');
     },
 
     // The panel follows one group at a time: the one last picked on the mirror if it is still playing,
-    // otherwise a playing group, preferring Spotify (what MMM-OnSpotify shows) over other music over TV audio.
+    // otherwise a playing group, preferring Spotify over other music over TV audio.
+    // With ignoreTvAudio, groups on TV audio are left out entirely, so with only the TV on the panel shows as paused.
     activeGroup: function() {
-        const configuredGroups = this.groups.filter(group =>
+        const configuredGroups = this.groups.filter(group => !this.isTvGroup(group) &&
             group.memberNames.some(name => this.roomNames().includes(name)));
         const remembered = configuredGroups.find(group => group.memberNames.includes(this.activeCoordinatorName));
         if (remembered && this.isPlaying(remembered)) {

@@ -1,109 +1,57 @@
 # MMM-SonosSelect
 
-This an extension for the [MagicMirror²](https://magicmirror.builders/).
+A [MagicMirror²](https://magicmirror.builders/) panel for choosing which Sonos rooms play music, built for touchscreen mirrors.
 
-This Module gives buttons for each of the rooms in your Sonos setup and allows you to select which rooms are playing music or grouped together.
+- One tile per room: tap an unlit room to add it to the music, tap a lit room to take it out (or pause, if it is the only one).
+- Previous / play-pause / next for the group being controlled.
+- Group volume, plus a volume slider per room while several rooms play together.
+- Follows the group playing Spotify first, then other music. TV audio can be ignored entirely (on by default).
 
-### Screen shots
+The node helper talks to the speakers directly on your local network (UPnP, port 1400) using the
+[`sonos`](https://www.npmjs.com/package/sonos) package. Speakers are found automatically with SSDP, so no
+IP addresses or separate Sonos HTTP server are needed.
 
-Module with symbols only in row mode:
+## Installation
 
-![Modulebar Row Symbols](https://github.com/Snille/MMM-Modulebar/blob/master/.github/ModuleBar-01.png)
-
-Module with symbols only in column mode:
-
-![Modulebar Column Symbols](https://github.com/Snille/MMM-Modulebar/blob/master/.github/ModuleBar-02.png)
-
-Module with symbols and text in column mode:
-
-![Modulebar Column Symbols Text](https://github.com/Snille/MMM-Modulebar/blob/master/.github/ModuleBar-03.png)
-
-Module with symbols and text in row mode:
-
-![Modulebar Row Symbols Text](https://github.com/Snille/MMM-Modulebar/blob/master/.github/ModuleBar-04.png)
-
-This is my own mirrors view (Bottom Bar) using some addition in the custom.css [see below](#custom-css)
-
-![Modulebar Custom CSS](https://github.com/Snille/MMM-Modulebar/blob/master/.github/ModuleBar-05.png)
-
-### Installation
-
-In your terminal, go to your MagicMirror's Module folder:
-````
+```sh
 cd ~/MagicMirror/modules
-````
-
-Clone this repository:
-````
 git clone https://github.com/basnelso/MMM-SonosSelect
-````
+cd MMM-SonosSelect
+npm install
+```
 
-### Using the module
+The MagicMirror host must be on the same network as the speakers, with multicast (SSDP) allowed.
 
-To use this module, add it to the modules array in the `config/config.js` file:
-````javascript
-modules: [
-    {
-        module: "MMM-SonosSelect",
-        position: "bottom_bar", // This can be any of the regions.
-        config: {
-            // See 'Configuration options' for more information.
+## Configuration
+
+```javascript
+{
+    module: "MMM-SonosSelect",
+    position: "top_right",
+    config: {
+        columns: 4,
+        buttons: {
+            "1": { room: "Living Room", symbol: "couch" },
+            "2": { room: "Kitchen", symbol: "utensils" },
+            "3": { room: "Bedroom", symbol: "bed" },
+            "4": { room: "Office", label: "Study", symbol: "tv" },
         }
     }
-]
-````
+},
+```
 
-### Configuration options
+| Option | Default | Description |
+|---|---|---|
+| `buttons` | two example rooms | Rooms to show, in order. `room` must match the room name in the Sonos app exactly. `symbol` is a [Font Awesome](https://fontawesome.com/icons) icon name. `label` (optional) is the text shown under the icon, if different from the room name. |
+| `columns` | `4` | Number of room tiles per row. |
+| `ignoreTvAudio` | `true` | Treat rooms playing TV audio (HDMI/optical) as idle, so the panel only ever controls music. |
+| `updateInterval` | `3000` | How often (ms) to read the speakers' state. |
+| `volumeThrottle` | `250` | Minimum time (ms) between volume commands while dragging a slider. |
 
-The following properties can be configured:
+Rooms that are not found on the network are shown dimmed and cannot be tapped.
 
-| Option             | Default | Description
-| ------------------ | ------- | -----------
-| `showBorder`       | `true` | Determines if the border around the buttons should be shown. <br><br> **Possible values:** `true` or `false`
-| `minWidth`         | `0px` | The minimum width for all the buttons. <br><br> **Possible values:** `css length`
-| `minHeight`        | `0px` | The minimum height for all the buttons. <br><br> **Possible values:** `css length`
-| `direction`        | `row` | The direction of the menu. <br><br> **Possible values:** `row`, `column`, `row-reverse` or `column-reverse`
-| `buttons`          | Clock example button | All the different buttons in the menu. <br><br> **Possible values:** a button configuration, see [Configuring Buttons](#configuring-buttons)
+## Notes
 
-### Configuring Buttons
-
-Buttons have to be placed in `buttons` in the `config`. A button contains a uniqe number as a key and a set of options in the object (`{}`).
-
-Each button starts with it's own uniqe number (ex. "1"), then add the options needed.
-
-| Option   | Description
-| -------- | -----------
-| `room`   | The string of the room name in sonos. <br><br> **Possible values:** `string`
-| `symbol` | A symbol to display in the button. <br><br> **Note:** if no value is set no symbol will be displayed. <br> **Possible values:** See [Font Awesome](http://fontawesome.io/icons) website
-| `size`   | The size of the symbol. <br><br> **Note:** will only have effect on a symbol. <br> **Default value:** `1` <br> **Possible values:** `1`, `2`, `3`, `4` or `5`
-| `width`  | The width of the image. <br><br> **Note:** will only have effect on an image. <br> **Possible values:** `number`
-| `height` | The height of the image. <br><br> **Note:** will only have effect on an image. <br> **Possible values:** `number`
-
-
-An example:
-
-````javascript
-  buttons: {
-    "1": {
-      room: "Living Room", // Needs to match the room name in your sonos app
-      symbol: "couch"
-    },
-    "2": {
-      room: "Kitchen",
-      symbol: "utensils"
-    },
-    "3": {
-      room: "Bathroom",
-      symbol: "toilet"
-    },
-  }
-````
-
-### Notes
-* **Important:** unfortunatly positioning this module as fullscreen will result in the menu floating top left. I currently do not know how to fix this but will look into it. If you know how don't hesitate to either write me or send me a pull request!
-* If the image is an local path and it does not show. Try different ways to write the local path. If this still does not work then try putting the image in a folder in your MagicMirror folder and use as local path `foldername/imagename`.
-* If only heigh or width is set for an image the other size will scale to maintain it the image it's original aspect ratio.
-* Module name is case sensitive.
-* If both the `text` and `symbol` aren't set for a button then the button won't contain anything, but still show the border.
-* The symbols are all form the [Font Awesome](http://fontawesome.io/icons) website.
-* The text may contain HTML tags and will be displayed as HTML.
+- Tapping a room when nothing is playing resumes whatever that room last had queued; start new music from the
+  Sonos or Spotify app.
+- Electron treats a finger drag on a range input as a scroll, so the sliders handle touch events themselves.
