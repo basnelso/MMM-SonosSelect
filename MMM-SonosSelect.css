@@ -1,116 +1,152 @@
-/*****************************************************
- * Magic Mirror 2                                    *
- * Custom CSS for MMM-modulebar                      *
- *                                                   *
- * By Erik Pettersson                                *
- * Based on the TouchNavigation CSS by Brian Janssen *
- * MIT Licensed.                                     *
- *                                                   *
- *****************************************************/
- .icon-menu {
-    display: grid; /* Use grid layout */
-    justify-content: center; /* Center the grid horizontally */
-    align-items: center; /* Center the grid vertically */
-    gap: 10px; /* Space between buttons */
-    margin-left: auto;
-    margin-right: auto;
+/* Matches the Photobooth controls: thin light borders, pill and rounded shapes, small spaced-out labels. */
+.sonos-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  margin-top: 10px;
 }
 
-.control-menu {
-    max-width: 360px;
-	display: inline-flex;
-	margin-left: auto;
-	margin-right: auto;
+.sonos-status {
+  font-size: 16px;
+  color: #aaa;
+  text-align: center;
 }
 
-.button {
-    z-index: 1;
-    /* Border */
-    border-style: solid;
-    border-width: 2px;
-    border-radius: 15px;
-
-    /* as container */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    margin: 2px;
-    padding: 6px 6px;
+.sonos-transport {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 34px;
 }
 
-.room-button-on {
-    border-color: rgb(255, 255, 255);
+.sonos-transport-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
+  color: #eee;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
-.room-button-off {
-    border-color: #aaa;
+.sonos-play-button {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
 }
 
-.room-symbol {
-    margin: 1px 1px;
+.sonos-transport-button:active,
+.sonos-room:active {
+  background: rgba(255, 255, 255, 0.15);
 }
 
-.room-symbol-on {
-    color:rgb(255, 255, 255);
+.sonos-disabled {
+  opacity: 0.35;
 }
 
-.room-symbol-off {
-    color: #aaa;
+.sonos-volume {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 16px;
+  color: #aaa;
 }
 
-.control-button {
-    border-color: black;
+.sonos-room-volumes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 26px;
+  row-gap: 4px;
 }
 
-.control-symbol {
-    color:rgb(255, 255, 255);
+.sonos-room-volume {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  color: #aaa;
 }
 
-.volume-wrapper {
-    display: grid;
-    margin-top: 5px;
-    margin-bottom: 15px;
-    width: 200px;
-    margin-left: auto;
-    margin-right: auto;
+.sonos-room-volume i {
+  width: 20px;
+  text-align: center;
 }
 
-.slider-icon {
-    grid-area: 1 / 1;
-    margin-right: 88%;
-    font-size: 7px;
-    margin-top: 3px;
-    color: black;
+.sonos-panel input.sonos-volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 30px;
+  background: transparent;
+  outline: none;
+  touch-action: none;
 }
 
+.sonos-panel input.sonos-volume-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.35);
+}
 
-input[type=range] {
-    -webkit-appearance: none;
-    width: 100%;
-    height: 8px;
-    border-radius: 5px;  
-    background: #ffffff;
-    outline: none;
-    -webkit-transition: .2s;
-    transition: opacity .2s;
+.sonos-panel input.sonos-volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  margin-top: -11px;
+  border-radius: 50%;
+  background: #000;
+  border: 2px solid #fff;
 }
-  
-input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #ffffff;
-    cursor: pointer;
+
+.sonos-rooms {
+  display: grid;
+  gap: 10px;
 }
-  
-input[type=range]::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: #ffffff;
-    cursor: pointer;
+
+.sonos-room {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 88px;
+  box-sizing: border-box;
+  font-size: 26px;
+  color: #bbb;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.sonos-room-name {
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  padding: 0 4px;
+}
+
+.sonos-room-on {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Room sliders are a step smaller than the main volume so the main one still reads as the main control. */
+.sonos-room-volume input.sonos-volume-slider::-webkit-slider-runnable-track {
+  height: 4px;
+}
+
+.sonos-room-volume input.sonos-volume-slider::-webkit-slider-thumb {
+  width: 22px;
+  height: 22px;
+  margin-top: -9px;
 }

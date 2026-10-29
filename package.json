@@ -1,0 +1,11 @@
+{
+  "name": "mmm-sonosselect",
+  "version": "2.0.0",
+  "description": "MagicMirror panel for controlling Sonos rooms",
+  "main": "MMM-SonosSelect.js",
+  "author": "Brady Snelson",
+  "license": "MIT",
+  "dependencies": {
+    "sonos": "^1.14.3"
+  }
+}
