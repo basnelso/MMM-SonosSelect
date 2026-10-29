@@ -48,12 +48,12 @@ module.exports = NodeHelper.create({
             const memberNames = [...new Set(group.ZoneGroupMember.map(member => member.ZoneName))];
 
             for (const member of group.ZoneGroupMember) {
-                const memberHost = new URL(member.Location).hostname;
-                // For a stereo pair, prefer the address that coordinates the group: commands sent to the
-                // secondary speaker of a pair are rejected.
-                if (!rooms[member.ZoneName] || memberHost === coordinatorHost) {
-                    rooms[member.ZoneName] = { host: memberHost, groupCoordinatorHost: coordinatorHost };
+                // The second speaker of a stereo pair is marked Invisible and rejects group commands
+                // (UPnP error 1023), so always address the pair through its main speaker.
+                if (member.Invisible === '1') {
+                    continue;
                 }
+                rooms[member.ZoneName] = { host: new URL(member.Location).hostname, groupCoordinatorHost: coordinatorHost };
             }
             groupSummaries.push({ coordinatorHost, coordinatorName, memberNames });
         }
