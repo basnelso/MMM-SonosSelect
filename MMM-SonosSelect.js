@@ -42,7 +42,9 @@ Module.register("MMM-SonosSelect", {
         Log.info('Starting module: ' + this.name);
         this.groups = [];
         this.roomVolumes = {};
-        this.activeCoordinatorName = null;
+        // Volume limits broadcast by MMM-SonosEQ, which also enforces them: { rooms: { name: 0-100 }, group: 0-100 }.
+        this.volumeLimits = { rooms: {}, group: null };
+        this.activeCoordinatorName = this.loadRememberedRoom();
         this.errorMessage = null;
         this.sendSocketNotification('SONOS_START', { updateInterval: this.config.updateInterval });
     },
@@ -76,13 +78,37 @@ Module.register("MMM-SonosSelect", {
             return remembered;
         }
         const playingGroups = configuredGroups.filter(group => this.isPlaying(group));
-        for (const source of ['spotify', 'music', 'tv']) {
-            const match = playingGroups.find(group => group.source === source);
-            if (match) {
-                return match;
-            }
+        const sourceOrder = ['spotify', 'music', 'tv'];
+        const playingGroup = sourceOrder.map(source => playingGroups.find(group => group.source === source))
+            .find(Boolean) || playingGroups[0];
+        if (playingGroup) {
+            // Remember it even when the music was started from another app, so that after a pause
+            // Play resumes the same rooms instead of the panel losing track of them.
+            this.rememberRoom(playingGroup.coordinatorName);
+            return playingGroup;
         }
-        return playingGroups[0] || remembered || null;
+        return remembered || null;
+    },
+
+    // Kept in localStorage so a page refresh doesn't forget which rooms to resume.
+    loadRememberedRoom: function() {
+        try {
+            return localStorage.getItem('MMM-SonosSelect.activeRoom');
+        } catch (error) {
+            return null;
+        }
+    },
+
+    rememberRoom: function(roomName) {
+        if (roomName === this.activeCoordinatorName) {
+            return;
+        }
+        this.activeCoordinatorName = roomName;
+        try {
+            localStorage.setItem('MMM-SonosSelect.activeRoom', roomName);
+        } catch (error) {
+            // Storage unavailable; the room is still remembered until the page reloads.
+        }
     },
 
     getDom: function() {
@@ -151,10 +177,11 @@ Module.register("MMM-SonosSelect", {
 
         const volume = group && group.groupVolume !== null ? group.groupVolume : 0;
         wrapper.appendChild(quietIcon);
+        const groupLimit = this.groupVolumeLimit(group);
         wrapper.appendChild(this.createSlider(volume, !!group, newVolume => {
             group.groupVolume = newVolume;
             this.sendCommand({ action: 'groupVolume', room: group.coordinatorName, volume: newVolume }, false);
-        }));
+        }, groupLimit));
         wrapper.appendChild(loudIcon);
         return wrapper;
     },
@@ -178,13 +205,32 @@ Module.register("MMM-SonosSelect", {
             row.appendChild(this.createSlider(this.roomVolumes[button.room] || 0, true, newVolume => {
                 this.roomVolumes[button.room] = newVolume;
                 this.sendCommand({ action: 'roomVolume', room: button.room, volume: newVolume }, false);
-            }));
+            }, this.volumeLimit(button.room)));
             roomVolumes.appendChild(row);
         }
         return roomVolumes;
     },
 
-    createSlider: function(volume, enabled, onVolume) {
+    volumeLimit: function(roomName) {
+        const limit = this.volumeLimits.rooms[roomName];
+        return typeof limit === 'number' ? limit : 100;
+    },
+
+    // Group volume is roughly the members' average, so it can't usefully go past the loudest member's limit;
+    // rooms playing together are also held to the group limit.
+    groupVolumeLimit: function(group) {
+        if (!group) {
+            return 100;
+        }
+        const loudestRoomLimit = Math.max(...group.memberNames.map(name => this.volumeLimit(name)));
+        const groupLimit = group.memberNames.length > 1 && typeof this.volumeLimits.group === 'number' ? this.volumeLimits.group : 100;
+        return Math.min(loudestRoomLimit, groupLimit);
+    },
+
+    // The slider stops at the limit, and a red line across the track shows where it is.
+    createSlider: function(volume, enabled, onVolume, limit = 100) {
+        const wrap = document.createElement("div");
+        wrap.className = "sonos-slider-wrap";
         const slider = document.createElement("input");
         slider.type = "range";
         slider.className = "sonos-volume-slider";
@@ -196,6 +242,9 @@ Module.register("MMM-SonosSelect", {
         var self = this;
         var lastSent = 0;
         const sendVolume = function (isFinal) {
+            if (Number(slider.value) > limit) {
+                slider.value = limit;
+            }
             const now = Date.now();
             if (isFinal || now - lastSent > self.config.volumeThrottle) {
                 lastSent = now;
@@ -224,7 +273,16 @@ Module.register("MMM-SonosSelect", {
                 setFromTouch(touch, type === 'touchend');
             }, { passive: false });
         });
-        return slider;
+
+        wrap.appendChild(slider);
+        if (limit < 100) {
+            const marker = document.createElement("div");
+            marker.className = "sonos-volume-limit";
+            // The thumb's centre travels from half a thumb in from each end, so place the line on that path.
+            marker.style.left = `calc(var(--thumb-size) / 2 + (100% - var(--thumb-size)) * ${limit / 100})`;
+            wrap.appendChild(marker);
+        }
+        return wrap;
     },
 
     createRoomGrid: function(group) {
@@ -278,7 +336,7 @@ Module.register("MMM-SonosSelect", {
             this.sendCommand({ action: 'join', room: roomName, target: activeGroup.coordinatorName });
         } else {
             const roomGroup = this.groupOfRoom(roomName);
-            this.activeCoordinatorName = roomName;
+            this.rememberRoom(roomName);
             roomGroup.state = 'playing';
             this.sendCommand({ action: 'play', room: roomName });
         }
@@ -287,10 +345,19 @@ Module.register("MMM-SonosSelect", {
     sendCommand: function(command, redraw = true) {
         this.sendSocketNotification('SONOS_COMMAND', command);
         if (command.action === 'join' || command.action === 'leave' || command.action === 'play') {
-            this.activeCoordinatorName = command.target || this.activeCoordinatorName || command.room;
+            this.rememberRoom(command.target || this.activeCoordinatorName || command.room);
         }
         if (redraw) {
             this.updateDom();
+        }
+    },
+
+    notificationReceived: function(notification, payload) {
+        if (notification === 'SONOS_VOLUME_LIMITS') {
+            this.volumeLimits = { rooms: {}, group: null, ...payload };
+            if (!this.isDraggingVolume()) {
+                this.updateDom();
+            }
         }
     },
 

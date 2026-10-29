@@ -6,6 +6,10 @@ A [MagicMirror²](https://magicmirror.builders/) panel for choosing which Sonos 
 - Previous / play-pause / next for the group being controlled.
 - Group volume, plus a volume slider per room while several rooms play together.
 - Follows the group playing Spotify first, then other music. TV audio can be ignored entirely (on by default).
+- Remembers the group it last followed, so Play after a pause resumes the same rooms, even when the music was
+  started from another app.
+- Shows volume limits set in [MMM-SonosEQ](https://github.com/basnelso/MMM-SonosEQ) as a red line on the volume
+  sliders, which stop at the limit.
 
 The node helper talks to the speakers directly on your local network (UPnP, port 1400) using the
 [`sonos`](https://www.npmjs.com/package/sonos) package. Speakers are found automatically with SSDP, so no

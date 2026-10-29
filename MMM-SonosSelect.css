@@ -76,10 +76,36 @@
   text-align: center;
 }
 
+.sonos-slider-wrap {
+  --thumb-size: 28px;
+  position: relative;
+  flex: 1;
+  display: flex;
+}
+
+.sonos-room-volume .sonos-slider-wrap {
+  --thumb-size: 22px;
+}
+
+/* Volume limit set in MMM-SonosEQ. */
+.sonos-volume-limit {
+  position: absolute;
+  top: 50%;
+  width: 3px;
+  height: 20px;
+  margin-left: -1.5px;
+  transform: translateY(-50%);
+  border-radius: 2px;
+  background: #ff4d4d;
+  pointer-events: none;
+}
+
 .sonos-panel input.sonos-volume-slider {
   -webkit-appearance: none;
   appearance: none;
   flex: 1;
+  width: 100%;
+  margin: 0;
   height: 30px;
   background: transparent;
   outline: none;
